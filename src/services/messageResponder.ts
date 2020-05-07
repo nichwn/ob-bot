@@ -1,21 +1,21 @@
 import { Message } from 'discord.js';
-import { PingFinder } from './pingFinder';
-import { inject, injectable } from 'inversify';
+import { MessageHandler } from './messageHandler';
+import { injectable, multiInject } from 'inversify';
 import { TYPES } from '../types';
 
 @injectable()
 export class MessageResponder {
-  private pingFinder: PingFinder;
+  private messageHandlers: MessageHandler[];
 
-  constructor(@inject(TYPES.PingFinder) pingFinder: PingFinder) {
-    this.pingFinder = pingFinder;
+  constructor(
+    @multiInject(TYPES.MessageHandler) messageHandlers: MessageHandler[],
+  ) {
+    this.messageHandlers = messageHandlers;
   }
 
-  handle(message: Message): Promise<Message | Message[]> {
-    if (this.pingFinder.isPing(message.content)) {
-      return message.reply('pong!');
-    }
-
-    return Promise.reject();
+  handle(message: Message) {
+    this.messageHandlers
+      .filter((handler) => handler.canProcess(message))
+      .map((handler) => handler.handle(message));
   }
 }
