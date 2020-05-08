@@ -2,6 +2,7 @@ import { Client, Message } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { TYPES } from './types';
 import { MessageResponder } from './services/messageResponder';
+import { startSymbol } from './utils/environment';
 
 @injectable()
 export class Bot {
@@ -21,8 +22,6 @@ export class Bot {
 
   public listen(): Promise<string> {
     this.client.on('message', (message: Message) => {
-      const startSymbol = process.env.START_SYMBOL!;
-
       if (message.author.bot || !message.content.startsWith(startSymbol)) {
         return;
       }
