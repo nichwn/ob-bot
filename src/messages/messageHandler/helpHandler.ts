@@ -5,9 +5,9 @@ import {
   MessageHandlerWithHelp,
 } from './messageHandler';
 import { Message } from 'discord.js';
-import { TYPES } from '../types';
-import { compareCaseInsensitive } from '../utils/compare';
-import { startSymbol } from '../utils/environment';
+import { TYPES } from '../../types';
+import { compareCaseInsensitive } from '../../utils/compare';
+import { startSymbol } from '../../utils/environment';
 
 @injectable()
 export class HelpHandler extends MessageHandler {

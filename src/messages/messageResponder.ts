@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
-import { MessageHandler } from './messageHandler';
 import { injectable, multiInject } from 'inversify';
 import { TYPES } from '../types';
+import { MessageHandler } from './messageHandler/messageHandler';
 
 @injectable()
 export class MessageResponder {

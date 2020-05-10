@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
 import { injectable, unmanaged } from 'inversify';
-import { compareCaseInsensitive } from '../utils/compare';
+import { compareCaseInsensitive } from '../../utils/compare';
 
 @injectable()
 export abstract class MessageHandler {

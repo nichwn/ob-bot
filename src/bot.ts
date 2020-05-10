@@ -1,29 +1,36 @@
 import { Client, Message } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { TYPES } from './types';
-import { MessageResponder } from './services/messageResponder';
+import { MessageResponder } from './messages/messageResponder';
 import { startSymbol } from './utils/environment';
+import { RoleService } from './services/roleService';
 
 @injectable()
 export class Bot {
   private client: Client;
   private token: string;
   private messageResponder: MessageResponder;
+  private roleService: RoleService;
 
   constructor(
     @inject(TYPES.Client) client: Client,
     @inject(TYPES.Token) token: string,
     @inject(TYPES.MessageResponder) messageResponder: MessageResponder,
+    @inject(TYPES.RoleService) roleService: RoleService,
   ) {
     this.client = client;
     this.token = token;
     this.messageResponder = messageResponder;
+    this.roleService = roleService;
   }
 
   public listen(): Promise<string> {
-    this.client.on('ready', () =>
-      this.client.user?.setActivity(`${startSymbol}help`),
-    );
+    this.client.on('ready', () => {
+      this.client.user?.setActivity(`${startSymbol}help`);
+      this.client.guilds.cache.forEach((guild) =>
+        this.roleService.createOrGetPlayerRole(guild),
+      );
+    });
 
     this.client.on('message', (message: Message) => {
       if (message.author.bot || !message.content.startsWith(startSymbol)) {
