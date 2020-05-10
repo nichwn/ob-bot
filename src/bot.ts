@@ -21,6 +21,10 @@ export class Bot {
   }
 
   public listen(): Promise<string> {
+    this.client.on('ready', () =>
+      this.client.user?.setActivity(`${startSymbol}help`),
+    );
+
     this.client.on('message', (message: Message) => {
       if (message.author.bot || !message.content.startsWith(startSymbol)) {
         return;
