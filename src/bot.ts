@@ -1,4 +1,4 @@
-import { Client, Message } from 'discord.js';
+import { Client, Message, Role } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { TYPES } from './types';
 import { MessageResponder } from './messages/messageResponder';
@@ -30,6 +30,10 @@ export class Bot {
       this.client.guilds.cache.forEach((guild) =>
         this.roleService.createOrGetPlayerRole(guild),
       );
+    });
+
+    this.client.on('roleDelete', (role: Role) => {
+      this.roleService.createOrGetPlayerRole(role.guild);
     });
 
     this.client.on('message', (message: Message) => {
