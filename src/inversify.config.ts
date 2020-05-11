@@ -13,6 +13,7 @@ import { DataProxy } from './proxies/dataProxy';
 import { RoleService } from './services/roleService';
 import { CreateTallyHandler } from './messages/messageHandler/createTallyHandler';
 import { TallyService } from './services/tallyService';
+import { CancelTallyHandler } from './messages/messageHandler/cancelTallyHandler';
 
 const container = new Container();
 
@@ -20,7 +21,11 @@ container.bind<Bot>(TYPES.Bot).to(Bot).inSingletonScope();
 container.bind<Client>(TYPES.Client).toConstantValue(new Client());
 container.bind<DataProxy>(TYPES.DataProxy).to(DataProxy);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(HelpHandler);
+container.bind<MessageHandler>(TYPES.MessageHandler).to(CancelTallyHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(CreateTallyHandler);
+container
+  .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
+  .to(CancelTallyHandler);
 container
   .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
   .to(CreateTallyHandler);

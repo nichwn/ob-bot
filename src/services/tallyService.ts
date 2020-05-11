@@ -14,4 +14,8 @@ export class TallyService {
   createTally(guild: Guild) {
     return this.dataProxy.createTally(guild);
   }
+
+  cancelTally(guild: Guild) {
+    return this.dataProxy.cancelTally(guild);
+  }
 }

@@ -6,7 +6,7 @@ import { TallyService } from '../../services/tallyService';
 import { RoleService } from '../../services/roleService';
 
 @injectable()
-export class CreateTallyHandler extends MessageHandlerWithHelp {
+export class CancelTallyHandler extends MessageHandlerWithHelp {
   private readonly tallyService: TallyService;
   private readonly roleService: RoleService;
 
@@ -14,7 +14,11 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
     @inject(TYPES.TallyService) tallyService: TallyService,
     @inject(TYPES.RoleService) roleService,
   ) {
-    super('createTally', MessageCategory.Tally, 'Admin. Starts a new tally');
+    super(
+      'cancelTally',
+      MessageCategory.Tally,
+      'Admin. Cancels the current tally',
+    );
     this.tallyService = tallyService;
     this.roleService = roleService;
   }
@@ -24,19 +28,16 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
       return message.reply('you need to be an admin to use this command');
     }
 
-    const succeeded = await this.tallyService.createTally(message.guild!);
+    const succeeded = await this.tallyService.cancelTally(message.guild!);
     if (!succeeded) {
-      return message.reply(
-        "an active tally is already running or you don't have enough players",
-      );
+      return message.reply('no tally is currently active');
     }
 
     const playerRole = await this.roleService.createOrGetPlayerRole(
       message.guild!,
     );
-    const majority = Math.floor(playerRole.members.array().length / 2) + 1;
     message.channel.send(
-      `${playerRole}\n\nA new vote has commenced. Majority is ${majority}.`,
+      `${playerRole}\n\nThe current vote has been cancelled.`,
     );
   }
 }

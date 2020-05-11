@@ -22,7 +22,7 @@ export abstract class MessageHandler {
 }
 
 export enum MessageCategory {
-  'Game',
+  'Tally',
 }
 
 export abstract class MessageHandlerWithHelp extends MessageHandler {

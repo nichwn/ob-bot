@@ -78,4 +78,18 @@ export class DataProxy {
 
     return true;
   }
+
+  cancelTally(guild: Guild) {
+    const guildCache = this.getCacheForGuild(guild);
+
+    if (!guildCache.tally.active) {
+      return false;
+    }
+
+    guildCache.tally.active = false;
+
+    this.setCacheForGuild(guild, guildCache);
+
+    return true;
+  }
 }
