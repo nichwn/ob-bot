@@ -5,12 +5,12 @@ import { Message } from 'discord.js';
 @injectable()
 export class EchoHandler extends MessageHandlerWithHelp {
   constructor() {
-    super('echo', MessageCategory.Utility, "echo's message");
+    super('echo', MessageCategory.Utility, "Echo's message");
   }
 
   handle(message: Message) {
     return message.channel.send(
-      `Received: ${message.content.slice(this.commandPattern.length)}`,
+      `received: ${message.content.slice(this.commandPattern.length)}`,
     );
   }
 }

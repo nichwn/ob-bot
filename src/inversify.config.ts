@@ -12,6 +12,8 @@ import {
 } from './messages/messageHandler/messageHandler';
 import { DataProxy } from './proxies/dataProxy';
 import { RoleService } from './services/roleService';
+import { CreateTallyHandler } from './messages/messageHandler/createTallyHandler';
+import { TallyService } from './services/tallyService';
 
 const container = new Container();
 
@@ -20,11 +22,16 @@ container.bind<Client>(TYPES.Client).toConstantValue(new Client());
 container.bind<DataProxy>(TYPES.DataProxy).to(DataProxy);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(EchoHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(HelpHandler);
+container.bind<MessageHandler>(TYPES.MessageHandler).to(CreateTallyHandler);
 container
   .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
   .to(EchoHandler);
+container
+  .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
+  .to(CreateTallyHandler);
 container.bind<MessageResponder>(TYPES.MessageResponder).to(MessageResponder);
 container.bind<RoleService>(TYPES.RoleService).to(RoleService);
+container.bind<TallyService>(TYPES.TallyService).to(TallyService);
 container.bind<string>(TYPES.Token).toConstantValue(discordAuthToken);
 
 export default container;

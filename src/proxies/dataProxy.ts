@@ -1,17 +1,28 @@
 import { Guild } from 'discord.js';
 import { injectable } from 'inversify';
 import * as NodeCache from 'node-cache';
+import { cloneDeep } from 'lodash';
 
 const cache = new NodeCache();
 
 interface GuildCache {
   playerRoleId?: string;
+  tally: {
+    active: boolean;
+    players: TallyPlayer;
+  };
 }
+
+interface TallyPlayer {
+  [playerId: string]: string | null;
+}
+
+const defaultState: GuildCache = { tally: { active: false, players: {} } };
 
 @injectable()
 export class DataProxy {
   private getCacheForGuild(guild: Guild): GuildCache {
-    return cache.get(guild.id) ?? {};
+    return cloneDeep(cache.get(guild.id) ?? defaultState);
   }
 
   private setCacheForGuild(guild: Guild, guildCache: GuildCache) {
@@ -30,15 +41,41 @@ export class DataProxy {
       .create({
         data: {
           name: 'Player',
+          mentionable: true,
         },
         reason: 'A game player',
       })
       .then((role) => {
-        this.setCacheForGuild(guild, {
-          ...guildCache,
-          playerRoleId: role.id,
-        });
+        guildCache.playerRoleId = role.id;
+        this.setCacheForGuild(guild, guildCache);
         return role;
       });
+  }
+
+  async createTally(guild: Guild) {
+    const guildCache = this.getCacheForGuild(guild);
+
+    if (guildCache.tally.active) {
+      return false;
+    }
+
+    const playerRole = await this.createOrGetPlayerRole(guild);
+    const playersWithRole = playerRole.members.map((member) => member.id);
+    if (playersWithRole.length < 3) {
+      return false;
+    }
+
+    guildCache.tally = {
+      active: true,
+      players: playersWithRole.reduce((accu, currentValue) => {
+        console.log(accu);
+        accu[currentValue] = null;
+        return accu;
+      }, {} as TallyPlayer),
+    };
+
+    this.setCacheForGuild(guild, guildCache);
+
+    return true;
   }
 }

@@ -35,6 +35,9 @@ export class HelpHandler extends MessageHandler {
         index === 0 ||
         handler.category !== handlersSorted[index - 1].category
       ) {
+        if (index !== 0) {
+          handlerLines.push('\n');
+        }
         handlerLines.push(MessageCategory[handler.category]);
         handlerLines.push('===');
       }
