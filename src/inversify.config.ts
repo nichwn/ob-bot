@@ -4,7 +4,6 @@ import { Bot } from './bot';
 import { Client } from 'discord.js';
 import { MessageResponder } from './messages/messageResponder';
 import { HelpHandler } from './messages/messageHandler/helpHandler';
-import { EchoHandler } from './messages/messageHandler/echoHandler';
 import { discordAuthToken } from './utils/environment';
 import {
   MessageHandler,
@@ -20,12 +19,8 @@ const container = new Container();
 container.bind<Bot>(TYPES.Bot).to(Bot).inSingletonScope();
 container.bind<Client>(TYPES.Client).toConstantValue(new Client());
 container.bind<DataProxy>(TYPES.DataProxy).to(DataProxy);
-container.bind<MessageHandler>(TYPES.MessageHandler).to(EchoHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(HelpHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(CreateTallyHandler);
-container
-  .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
-  .to(EchoHandler);
 container
   .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
   .to(CreateTallyHandler);
