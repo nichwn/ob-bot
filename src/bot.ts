@@ -1,4 +1,4 @@
-import { Client, Message, Role } from 'discord.js';
+import { Client } from 'discord.js';
 import { inject, injectable } from 'inversify';
 import { TYPES } from './types';
 import { MessageResponder } from './messages/messageResponder';
@@ -32,11 +32,15 @@ export class Bot {
       );
     });
 
-    this.client.on('roleDelete', (role: Role) => {
-      this.roleService.createOrGetPlayerRole(role.guild);
-    });
+    this.client.on('guildCreate', (guild) =>
+      this.roleService.createOrGetPlayerRole(guild),
+    );
 
-    this.client.on('message', (message: Message) => {
+    this.client.on('roleDelete', (role) =>
+      this.roleService.createOrGetPlayerRole(role.guild),
+    );
+
+    this.client.on('message', (message) => {
       if (message.author.bot || !message.content.startsWith(startSymbol)) {
         return;
       }
