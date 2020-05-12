@@ -1,7 +1,14 @@
 import { injectable, inject } from 'inversify';
 import { DataProxy } from '../proxies/dataProxy';
 import { TYPES } from '../types';
-import { Guild } from 'discord.js';
+import { Guild, User } from 'discord.js';
+import {
+  NoActiveTallyError,
+  VoterDoesNotExistError,
+  VoteTargetDoesNotExistError,
+  InsufficientPlayersError,
+} from '../exceptions';
+import { ActiveTallyError } from '../exceptions';
 
 @injectable()
 export class TallyService {
@@ -12,22 +19,22 @@ export class TallyService {
   }
 
   async createTally(guild: Guild) {
-    if (!this.dataProxy.isTallyActive(guild)) {
-      const playerRole = await this.dataProxy.createOrGetPlayerRole(guild);
-      if (playerRole.members.array().length >= 3) {
-        await this.dataProxy.createTally(guild);
-        return true;
-      }
+    if (this.dataProxy.isTallyActive(guild)) {
+      throw new ActiveTallyError();
     }
-    return false;
+
+    const playerRole = await this.dataProxy.createOrGetPlayerRole(guild);
+    if (playerRole.members.array().length < 3) {
+      throw new InsufficientPlayersError();
+    }
+    await this.dataProxy.createTally(guild);
   }
 
   cancelTally(guild: Guild) {
-    if (this.dataProxy.isTallyActive(guild)) {
-      this.dataProxy.cancelTally(guild);
-      return true;
+    if (!this.dataProxy.isTallyActive(guild)) {
+      throw new NoActiveTallyError();
     }
-    return false;
+    this.dataProxy.cancelTally(guild);
   }
 
   votePlayer(guild: Guild, voter: User, target: User) {

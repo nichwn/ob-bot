@@ -4,6 +4,7 @@ import { Message } from 'discord.js';
 import { TYPES } from '../../types';
 import { TallyService } from '../../services/tallyService';
 import { RoleService } from '../../services/roleService';
+import { InsufficientPlayersError, ActiveTallyError } from '../../exceptions';
 
 @injectable()
 export class CreateTallyHandler extends MessageHandlerWithHelp {
@@ -25,11 +26,19 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
       return;
     }
 
-    const succeeded = await this.tallyService.createTally(message.guild!);
-    if (!succeeded) {
-      message.reply(
-        "an active tally is already running or you don't have enough players",
-      );
+    try {
+      await this.tallyService.createTally(message.guild!);
+    } catch (e) {
+      let response = '';
+      if (e instanceof ActiveTallyError) {
+        response = 'a tally is already running.';
+      } else if (e instanceof InsufficientPlayersError) {
+        response = 'more players are needed before a tally can be started.';
+      } else {
+        response = 'something went wrong. Try again later.';
+      }
+
+      message.reply(response);
       return;
     }
 

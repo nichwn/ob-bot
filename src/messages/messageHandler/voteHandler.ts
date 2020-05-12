@@ -7,7 +7,7 @@ import {
   NoActiveTallyError,
   VoterDoesNotExistError,
   VoteTargetDoesNotExistError,
-} from '../../exceptions/exceptions';
+} from '../../exceptions';
 
 @injectable()
 export class VoteHandler extends MessageHandlerWithHelp {
@@ -44,11 +44,11 @@ export class VoteHandler extends MessageHandlerWithHelp {
         response = 'you cannot vote.';
       } else if (e instanceof VoteTargetDoesNotExistError) {
         response = 'this user cannot be voted for.';
+      } else {
+        response = 'something went wrong. Try again later.';
       }
 
-      if (response) {
-        message.reply(response);
-      }
+      message.reply(response);
     }
   }
 }

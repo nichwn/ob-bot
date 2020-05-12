@@ -4,6 +4,7 @@ import { Message } from 'discord.js';
 import { TYPES } from '../../types';
 import { TallyService } from '../../services/tallyService';
 import { RoleService } from '../../services/roleService';
+import { NoActiveTallyError } from '../../exceptions';
 
 @injectable()
 export class CancelTallyHandler extends MessageHandlerWithHelp {
@@ -29,9 +30,17 @@ export class CancelTallyHandler extends MessageHandlerWithHelp {
       return;
     }
 
-    const succeeded = this.tallyService.cancelTally(message.guild!);
-    if (!succeeded) {
-      message.reply('no tally is currently active');
+    try {
+      this.tallyService.cancelTally(message.guild!);
+    } catch (e) {
+      let response = '';
+      if (e instanceof NoActiveTallyError) {
+        response = 'no tally is currently active';
+      } else {
+        response = 'something went wrong. Try again later.';
+      }
+
+      message.reply(response);
       return;
     }
 
