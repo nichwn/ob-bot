@@ -101,17 +101,24 @@ export class DataProxy {
   votes(guild: Guild): [{ [target: string]: string[] }, string[]] {
     const guildCache = this.getCacheForGuild(guild);
 
+    const initialVoteState = Object.keys(guildCache.tally.players).reduce(
+      (accu, currentValue) => ({
+        ...accu,
+        [currentValue]: [],
+      }),
+      {} as { [target: string]: string[] },
+    );
+
     return Object.entries(guildCache.tally.players).reduce(
       ([votes, notVoted], [voter, target]) => {
         if (target === null) {
           notVoted.push(voter);
         } else {
-          const targetVotes = votes[target] ?? [];
-          votes[target] = [...targetVotes, voter];
+          votes[target].push(voter);
         }
         return [votes, notVoted];
       },
-      [{}, []] as [{ [target: string]: string[] }, string[]],
+      [initialVoteState, [] as string[]],
     );
   }
 

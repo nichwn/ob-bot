@@ -73,7 +73,10 @@ export class ShowVotesHandler extends MessageHandlerWithHelp {
         .setDescription(`${majority} for majority`);
 
       votesUsernames.forEach((vote) =>
-        response.addField(`${vote[0]} (${vote[1].length})`, vote[1].join(', ')),
+        response.addField(
+          `${vote[0]} (${vote[1].length})`,
+          vote[1].join(', ') || '\u200b',
+        ),
       );
 
       response.addFields({
