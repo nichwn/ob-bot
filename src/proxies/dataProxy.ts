@@ -9,11 +9,11 @@ interface GuildCache {
   playerRoleId?: string;
   tally: {
     active: boolean;
-    players: TallyPlayer;
+    players: TallyPlayers;
   };
 }
 
-interface TallyPlayer {
+interface TallyPlayers {
   [playerId: string]: string | null;
 }
 
@@ -68,7 +68,7 @@ export class DataProxy {
       players: playersWithRole.reduce((accu, currentValue) => {
         accu[currentValue] = null;
         return accu;
-      }, {} as TallyPlayer),
+      }, {} as TallyPlayers),
     };
 
     this.setCacheForGuild(guild, guildCache);
@@ -82,7 +82,7 @@ export class DataProxy {
     this.setCacheForGuild(guild, guildCache);
   }
 
-  isActivePlayer(guild, user: User) {
+  isActivePlayer(guild: Guild, user: User) {
     const guildCache = this.getCacheForGuild(guild);
     return Object.prototype.hasOwnProperty.call(
       guildCache.tally.players,
@@ -90,11 +90,28 @@ export class DataProxy {
     );
   }
 
-  hasCastedVote(guild, user: User) {
+  hasCastedVote(guild: Guild, user: User) {
     const guildCache = this.getCacheForGuild(guild);
     return (
       this.isActivePlayer(guild, user) &&
       guildCache.tally.players[user.id] !== null
+    );
+  }
+
+  votes(guild: Guild): [{ [target: string]: string[] }, string[]] {
+    const guildCache = this.getCacheForGuild(guild);
+
+    return Object.entries(guildCache.tally.players).reduce(
+      ([votes, notVoted], [voter, target]) => {
+        if (target === null) {
+          notVoted.push(voter);
+        } else {
+          const targetVotes = votes[target] ?? [];
+          votes[target] = [...targetVotes, voter];
+        }
+        return [votes, notVoted];
+      },
+      [{}, []] as [{ [target: string]: string[] }, string[]],
     );
   }
 

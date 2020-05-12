@@ -16,6 +16,7 @@ import { TallyService } from './services/tallyService';
 import { CancelTallyHandler } from './messages/messageHandler/cancelTallyHandler';
 import { VoteHandler } from './messages/messageHandler/voteHandler';
 import { UnvoteHandler } from './messages/messageHandler/unvoteHandler';
+import { ShowVotesHandler } from './messages/messageHandler/showVotesHandler';
 
 const container = new Container();
 
@@ -25,6 +26,7 @@ container.bind<DataProxy>(TYPES.DataProxy).to(DataProxy);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(HelpHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(CancelTallyHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(CreateTallyHandler);
+container.bind<MessageHandler>(TYPES.MessageHandler).to(ShowVotesHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(UnvoteHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(VoteHandler);
 container
@@ -33,6 +35,9 @@ container
 container
   .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
   .to(CreateTallyHandler);
+container
+  .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
+  .to(ShowVotesHandler);
 container
   .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
   .to(UnvoteHandler);

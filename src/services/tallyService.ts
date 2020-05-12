@@ -4,8 +4,8 @@ import { TYPES } from '../types';
 import { Guild, User } from 'discord.js';
 import {
   NoActiveTallyError,
-  VoterDoesNotExistError,
-  VoteTargetDoesNotExistError,
+  UserIsNotAPlayerError,
+  VoteTargetIsNotAPlayerError,
   InsufficientPlayersError,
   NoCastedVoteError,
 } from '../exceptions';
@@ -40,15 +40,26 @@ export class TallyService {
     this.dataProxy.cancelTally(guild);
   }
 
+  votes(guild: Guild, user: User) {
+    if (!this.dataProxy.isTallyActive(guild)) {
+      throw new NoActiveTallyError();
+    }
+    if (!this.dataProxy.isActivePlayer(guild, user)) {
+      throw new UserIsNotAPlayerError();
+    }
+
+    return this.dataProxy.votes(guild);
+  }
+
   vote(guild: Guild, voter: User, target: User) {
     if (!this.dataProxy.isTallyActive(guild)) {
       throw new NoActiveTallyError();
     }
     if (!this.dataProxy.isActivePlayer(guild, voter)) {
-      throw new VoterDoesNotExistError();
+      throw new UserIsNotAPlayerError();
     }
     if (!this.dataProxy.isActivePlayer(guild, target)) {
-      throw new VoteTargetDoesNotExistError();
+      throw new VoteTargetIsNotAPlayerError();
     }
 
     this.dataProxy.vote(guild, voter, target);
@@ -58,7 +69,7 @@ export class TallyService {
     if (!this.dataProxy.isTallyActive(guild)) {
       throw new NoActiveTallyError();
     } else if (!this.dataProxy.isActivePlayer(guild, user)) {
-      throw new VoterDoesNotExistError();
+      throw new UserIsNotAPlayerError();
     } else if (!this.dataProxy.hasCastedVote(guild, user)) {
       throw new NoCastedVoteError();
     }

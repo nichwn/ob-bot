@@ -5,8 +5,8 @@ import { TYPES } from '../../types';
 import { TallyService } from '../../services/tallyService';
 import {
   NoActiveTallyError,
-  VoterDoesNotExistError,
-  VoteTargetDoesNotExistError,
+  UserIsNotAPlayerError,
+  VoteTargetIsNotAPlayerError,
 } from '../../exceptions';
 
 @injectable()
@@ -40,9 +40,9 @@ export class VoteHandler extends MessageHandlerWithHelp {
       let response = '';
       if (e instanceof NoActiveTallyError) {
         response = 'no tally is currently active.';
-      } else if (e instanceof VoterDoesNotExistError) {
-        response = 'you cannot vote.';
-      } else if (e instanceof VoteTargetDoesNotExistError) {
+      } else if (e instanceof UserIsNotAPlayerError) {
+        response = 'only players can vote.';
+      } else if (e instanceof VoteTargetIsNotAPlayerError) {
         response = 'this user cannot be voted for.';
       } else {
         response = 'something went wrong. Try again later.';

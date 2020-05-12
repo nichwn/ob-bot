@@ -5,7 +5,7 @@ import { TYPES } from '../../types';
 import { TallyService } from '../../services/tallyService';
 import {
   NoCastedVoteError,
-  VoterDoesNotExistError,
+  UserIsNotAPlayerError,
   NoActiveTallyError,
 } from '../../exceptions';
 
@@ -25,8 +25,8 @@ export class UnvoteHandler extends MessageHandlerWithHelp {
       let response = '';
       if (e instanceof NoActiveTallyError) {
         response = 'no tally is currently active.';
-      } else if (e instanceof VoterDoesNotExistError) {
-        response = 'you cannot unvote.';
+      } else if (e instanceof UserIsNotAPlayerError) {
+        response = 'only players can unvote.';
       } else if (e instanceof NoCastedVoteError) {
         response = "you haven't casted a vote.";
       } else {

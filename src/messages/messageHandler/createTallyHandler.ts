@@ -45,9 +45,6 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
     const playerRole = await this.roleService.createOrGetPlayerRole(
       message.guild!,
     );
-    const majority = Math.floor(playerRole.members.array().length / 2) + 1;
-    message.channel.send(
-      `${playerRole}\n\nA new vote has commenced. Majority is ${majority}.`,
-    );
+    message.channel.send(`${playerRole}\n\nA new vote has commenced.`);
   }
 }
