@@ -11,11 +11,22 @@ export class TallyService {
     this.dataProxy = dataProxy;
   }
 
-  createTally(guild: Guild) {
-    return this.dataProxy.createTally(guild);
+  async createTally(guild: Guild) {
+    if (!this.dataProxy.isTallyActive(guild)) {
+      const playerRole = await this.dataProxy.createOrGetPlayerRole(guild);
+      if (playerRole.members.array().length >= 3) {
+        await this.dataProxy.createTally(guild);
+        return true;
+      }
+    }
+    return false;
   }
 
   cancelTally(guild: Guild) {
-    return this.dataProxy.cancelTally(guild);
+    if (this.dataProxy.isTallyActive(guild)) {
+      this.dataProxy.cancelTally(guild);
+      return true;
+    }
+    return false;
   }
 }

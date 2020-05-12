@@ -25,12 +25,14 @@ export class CancelTallyHandler extends MessageHandlerWithHelp {
 
   async handle(message: Message) {
     if (!message.member?.hasPermission('ADMINISTRATOR')) {
-      return message.reply('you need to be an admin to use this command');
+      message.reply('you need to be an admin to use this command');
+      return;
     }
 
-    const succeeded = await this.tallyService.cancelTally(message.guild!);
+    const succeeded = this.tallyService.cancelTally(message.guild!);
     if (!succeeded) {
-      return message.reply('no tally is currently active');
+      message.reply('no tally is currently active');
+      return;
     }
 
     const playerRole = await this.roleService.createOrGetPlayerRole(

@@ -52,18 +52,16 @@ export class DataProxy {
       });
   }
 
+  isTallyActive(guild: Guild) {
+    const guildCache = this.getCacheForGuild(guild);
+    return guildCache.tally.active;
+  }
+
   async createTally(guild: Guild) {
     const guildCache = this.getCacheForGuild(guild);
 
-    if (guildCache.tally.active) {
-      return false;
-    }
-
     const playerRole = await this.createOrGetPlayerRole(guild);
     const playersWithRole = playerRole.members.map((member) => member.id);
-    if (playersWithRole.length < 3) {
-      return false;
-    }
 
     guildCache.tally = {
       active: true,
@@ -75,21 +73,13 @@ export class DataProxy {
     };
 
     this.setCacheForGuild(guild, guildCache);
-
-    return true;
   }
 
   cancelTally(guild: Guild) {
     const guildCache = this.getCacheForGuild(guild);
 
-    if (!guildCache.tally.active) {
-      return false;
-    }
-
     guildCache.tally.active = false;
 
     this.setCacheForGuild(guild, guildCache);
-
-    return true;
   }
 }

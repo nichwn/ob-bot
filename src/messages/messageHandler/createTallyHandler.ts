@@ -21,14 +21,16 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
 
   async handle(message: Message) {
     if (!message.member?.hasPermission('ADMINISTRATOR')) {
-      return message.reply('you need to be an admin to use this command');
+      message.reply('you need to be an admin to use this command');
+      return;
     }
 
     const succeeded = await this.tallyService.createTally(message.guild!);
     if (!succeeded) {
-      return message.reply(
+      message.reply(
         "an active tally is already running or you don't have enough players",
       );
+      return;
     }
 
     const playerRole = await this.roleService.createOrGetPlayerRole(
