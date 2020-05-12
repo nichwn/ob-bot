@@ -14,6 +14,7 @@ import { RoleService } from './services/roleService';
 import { CreateTallyHandler } from './messages/messageHandler/createTallyHandler';
 import { TallyService } from './services/tallyService';
 import { CancelTallyHandler } from './messages/messageHandler/cancelTallyHandler';
+import { VoteHandler } from './messages/messageHandler/voteHandler';
 
 const container = new Container();
 
@@ -23,12 +24,16 @@ container.bind<DataProxy>(TYPES.DataProxy).to(DataProxy);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(HelpHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(CancelTallyHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(CreateTallyHandler);
+container.bind<MessageHandler>(TYPES.MessageHandler).to(VoteHandler);
 container
   .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
   .to(CancelTallyHandler);
 container
   .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
   .to(CreateTallyHandler);
+container
+  .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
+  .to(VoteHandler);
 container.bind<MessageResponder>(TYPES.MessageResponder).to(MessageResponder);
 container.bind<RoleService>(TYPES.RoleService).to(RoleService);
 container.bind<TallyService>(TYPES.TallyService).to(TallyService);

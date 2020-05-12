@@ -29,4 +29,18 @@ export class TallyService {
     }
     return false;
   }
+
+  votePlayer(guild: Guild, voter: User, target: User) {
+    if (!this.dataProxy.isTallyActive(guild)) {
+      throw new NoActiveTallyError();
+    }
+    if (!this.dataProxy.isActivePlayer(guild, voter)) {
+      throw new VoterDoesNotExistError();
+    }
+    if (!this.dataProxy.isActivePlayer(guild, target)) {
+      throw new VoteTargetDoesNotExistError();
+    }
+
+    this.dataProxy.votePlayer(guild, voter, target);
+  }
 }

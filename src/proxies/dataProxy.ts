@@ -1,4 +1,4 @@
-import { Guild } from 'discord.js';
+import { Guild, User } from 'discord.js';
 import { injectable } from 'inversify';
 import * as NodeCache from 'node-cache';
 import { cloneDeep } from 'lodash';
@@ -66,7 +66,6 @@ export class DataProxy {
     guildCache.tally = {
       active: true,
       players: playersWithRole.reduce((accu, currentValue) => {
-        console.log(accu);
         accu[currentValue] = null;
         return accu;
       }, {} as TallyPlayer),
@@ -79,6 +78,22 @@ export class DataProxy {
     const guildCache = this.getCacheForGuild(guild);
 
     guildCache.tally.active = false;
+
+    this.setCacheForGuild(guild, guildCache);
+  }
+
+  isActivePlayer(guild, user: User) {
+    const guildCache = this.getCacheForGuild(guild);
+    return Object.prototype.hasOwnProperty.call(
+      guildCache.tally.players,
+      user.id,
+    );
+  }
+
+  votePlayer(guild: Guild, voter: User, target: User) {
+    const guildCache = this.getCacheForGuild(guild);
+
+    guildCache.tally.players[voter.id] = target.id;
 
     this.setCacheForGuild(guild, guildCache);
   }
