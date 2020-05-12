@@ -7,6 +7,7 @@ import {
   VoterDoesNotExistError,
   VoteTargetDoesNotExistError,
   InsufficientPlayersError,
+  NoCastedVoteError,
 } from '../exceptions';
 import { ActiveTallyError } from '../exceptions';
 
@@ -27,6 +28,7 @@ export class TallyService {
     if (playerRole.members.array().length < 3) {
       throw new InsufficientPlayersError();
     }
+
     await this.dataProxy.createTally(guild);
   }
 
@@ -34,10 +36,11 @@ export class TallyService {
     if (!this.dataProxy.isTallyActive(guild)) {
       throw new NoActiveTallyError();
     }
+
     this.dataProxy.cancelTally(guild);
   }
 
-  votePlayer(guild: Guild, voter: User, target: User) {
+  vote(guild: Guild, voter: User, target: User) {
     if (!this.dataProxy.isTallyActive(guild)) {
       throw new NoActiveTallyError();
     }
@@ -48,6 +51,18 @@ export class TallyService {
       throw new VoteTargetDoesNotExistError();
     }
 
-    this.dataProxy.votePlayer(guild, voter, target);
+    this.dataProxy.vote(guild, voter, target);
+  }
+
+  unvote(guild: Guild, user: User) {
+    if (!this.dataProxy.isTallyActive(guild)) {
+      throw new NoActiveTallyError();
+    } else if (!this.dataProxy.isActivePlayer(guild, user)) {
+      throw new VoterDoesNotExistError();
+    } else if (!this.dataProxy.hasCastedVote(guild, user)) {
+      throw new NoCastedVoteError();
+    }
+
+    this.dataProxy.unvote(guild, user);
   }
 }

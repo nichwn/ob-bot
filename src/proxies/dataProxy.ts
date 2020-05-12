@@ -90,10 +90,26 @@ export class DataProxy {
     );
   }
 
-  votePlayer(guild: Guild, voter: User, target: User) {
+  hasCastedVote(guild, user: User) {
+    const guildCache = this.getCacheForGuild(guild);
+    return (
+      this.isActivePlayer(guild, user) &&
+      guildCache.tally.players[user.id] !== null
+    );
+  }
+
+  vote(guild: Guild, voter: User, target: User) {
     const guildCache = this.getCacheForGuild(guild);
 
     guildCache.tally.players[voter.id] = target.id;
+
+    this.setCacheForGuild(guild, guildCache);
+  }
+
+  unvote(guild: Guild, user: User) {
+    const guildCache = this.getCacheForGuild(guild);
+
+    guildCache.tally.players[user.id] = null;
 
     this.setCacheForGuild(guild, guildCache);
   }
