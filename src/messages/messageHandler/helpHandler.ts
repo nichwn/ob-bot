@@ -4,7 +4,7 @@ import {
   MessageCategory,
   MessageHandlerWithHelp,
 } from './messageHandler';
-import { Message } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { TYPES } from '../../types';
 import { compareCaseInsensitive } from '../../utils/compare';
 import { startSymbol } from '../../utils/environment';
@@ -22,32 +22,52 @@ export class HelpHandler extends MessageHandler {
   }
 
   handle(message: Message) {
-    const handlersSorted = this.messageHandlers.sort((a, b) => {
-      if (a.category !== b.category) {
-        return a.category < b.category ? -1 : 1;
-      }
-      return compareCaseInsensitive(a.commandPattern, b.commandPattern);
-    });
+    const handlersByCategory = this.messageHandlers.reduce(
+      (accu, currentValue) => {
+        const category = currentValue.category;
+        const categoryCommands = accu[category] ?? [];
+        accu[category] = [...categoryCommands, currentValue];
+        return accu;
+      },
+      {} as {
+        [category: number]: MessageHandlerWithHelp[];
+      },
+    );
 
-    const lines = handlersSorted.map((handler, index) => {
-      const handlerLines: string[] = [];
-      if (
-        index === 0 ||
-        handler.category !== handlersSorted[index - 1].category
-      ) {
-        if (index !== 0) {
-          handlerLines.push('\n');
-        }
-        handlerLines.push(MessageCategory[handler.category]);
-        handlerLines.push('===');
-      }
-      handlerLines.push(
-        `${startSymbol}${handler.commandPattern}: ${handler.helpText}`,
+    const handlersSorted = Object.entries(handlersByCategory)
+      .sort(([handlerCategoryA], [handlerCategoryB]) =>
+        handlerCategoryA < handlerCategoryB ? -1 : 1,
+      )
+      .map(
+        ([handlerCategory, handlers]) =>
+          [
+            MessageCategory[handlerCategory],
+            handlers.sort((handlerA, handlerB) =>
+              compareCaseInsensitive(
+                handlerA.commandPattern,
+                handlerB.commandPattern,
+              ),
+            ),
+          ] as [number, MessageHandlerWithHelp[]],
       );
-      return handlerLines.join('\n');
-    });
 
-    message.author.send(['```markdown', ...lines, '```'].join('\n'));
+    const response = new MessageEmbed()
+      .setColor('#DC143C')
+      .setTitle('Commands');
+
+    handlersSorted.forEach(([handlerCategory, handlers]) =>
+      response.addField(
+        handlerCategory,
+        handlers
+          .map(
+            (handler) =>
+              `**${startSymbol}${handler.commandPattern}:** ${handler.helpText}`,
+          )
+          .join('\n'),
+      ),
+    );
+
+    message.author.send(response);
     message.reply('DMed!');
   }
 }
