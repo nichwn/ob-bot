@@ -3,6 +3,7 @@ export const TYPES = {
   Cache: Symbol('Cache'),
   Client: Symbol('Client'),
   DataProxy: Symbol('DataProxy'),
+  EmbedHelper: Symbol('EmbedHelper'),
   MessageHandler: Symbol('MessageHandler'),
   MessageHandlerWithHelp: Symbol('MessageHandlerWithHelp'),
   MessageResponder: Symbol('MessageResponder'),

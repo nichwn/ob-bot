@@ -17,12 +17,14 @@ import { CancelTallyHandler } from './messages/messageHandler/cancelTallyHandler
 import { VoteHandler } from './messages/messageHandler/voteHandler';
 import { UnvoteHandler } from './messages/messageHandler/unvoteHandler';
 import { ShowVotesHandler } from './messages/messageHandler/showVotesHandler';
+import { EmbedHelper } from './messages/embedHelper';
 
 const container = new Container();
 
 container.bind<Bot>(TYPES.Bot).to(Bot).inSingletonScope();
 container.bind<Client>(TYPES.Client).toConstantValue(new Client());
 container.bind<DataProxy>(TYPES.DataProxy).to(DataProxy);
+container.bind<EmbedHelper>(TYPES.EmbedHelper).to(EmbedHelper);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(HelpHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(CancelTallyHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(CreateTallyHandler);

@@ -1,24 +1,27 @@
-import { injectable, multiInject } from 'inversify';
+import { injectable, multiInject, inject } from 'inversify';
 import {
   MessageHandler,
   MessageCategory,
   MessageHandlerWithHelp,
 } from './messageHandler';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message } from 'discord.js';
 import { TYPES } from '../../types';
 import { compareCaseInsensitive } from '../../utils/compare';
-import { startSymbol } from '../../utils/environment';
+import { EmbedHelper } from '../embedHelper';
 
 @injectable()
 export class HelpHandler extends MessageHandler {
   private messageHandlers: MessageHandlerWithHelp[];
+  private embedHelper: EmbedHelper;
 
   constructor(
     @multiInject(TYPES.MessageHandlerWithHelp)
     messageHandlers: MessageHandlerWithHelp[],
+    @inject(TYPES.EmbedHelper) embedHelper: EmbedHelper,
   ) {
     super('help');
     this.messageHandlers = messageHandlers;
+    this.embedHelper = embedHelper;
   }
 
   handle(message: Message) {
@@ -51,21 +54,7 @@ export class HelpHandler extends MessageHandler {
           ] as [number, MessageHandlerWithHelp[]],
       );
 
-    const response = new MessageEmbed()
-      .setColor('#DC143C')
-      .setTitle('Commands');
-
-    handlersSorted.forEach(([handlerCategory, handlers]) =>
-      response.addField(
-        handlerCategory,
-        handlers
-          .map(
-            (handler) =>
-              `**${startSymbol}${handler.commandPattern}:** ${handler.helpText}`,
-          )
-          .join('\n'),
-      ),
-    );
+    const response = this.embedHelper.makeHelpEmbed(handlersSorted);
 
     message.author.send(response);
     message.reply('DMed!');
