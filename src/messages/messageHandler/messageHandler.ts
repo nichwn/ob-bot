@@ -11,10 +11,7 @@ export abstract class MessageHandler {
   }
 
   canProcess(message: Message) {
-    const commandProvided = message.content.slice(
-      0,
-      this.commandPattern.length,
-    );
+    const commandProvided = message.content.split(' ')[0];
     return compareCaseInsensitive(commandProvided, this.commandPattern) === 0;
   }
 
