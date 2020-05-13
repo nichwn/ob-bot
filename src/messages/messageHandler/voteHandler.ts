@@ -9,14 +9,19 @@ import {
   VoteTargetIsNotAPlayerError,
 } from '../../exceptions';
 import { EmbedHelper } from '../embedHelper';
+import { maxBy } from 'lodash';
+import { calculateMajority } from '../../utils/tally';
+import { RoleService } from '../../services/roleService';
 
 @injectable()
 export class VoteHandler extends MessageHandlerWithHelp {
   private readonly tallyService: TallyService;
+  private readonly roleService: RoleService;
   private readonly embedHelper: EmbedHelper;
 
   constructor(
     @inject(TYPES.TallyService) tallyService: TallyService,
+    @inject(TYPES.RoleService) roleService: RoleService,
     @inject(TYPES.EmbedHelper) embedHelper: EmbedHelper,
   ) {
     super(
@@ -25,6 +30,7 @@ export class VoteHandler extends MessageHandlerWithHelp {
       'Casts a vote for the mentioned player',
     );
     this.tallyService = tallyService;
+    this.roleService = roleService;
     this.embedHelper = embedHelper;
   }
 
@@ -61,12 +67,41 @@ export class VoteHandler extends MessageHandlerWithHelp {
     try {
       const [votes, notVoted] = this.tallyService.votes(message.guild!);
 
+      const targetWithMostVotes = maxBy(
+        Object.entries(votes),
+        ([, targetVotes]) => targetVotes.length,
+      )!;
+      const target = targetWithMostVotes[0];
+      const targetVotes = targetWithMostVotes[1].length;
+
+      const playerRole = await this.roleService.createOrGetPlayerRole(
+        message.guild!,
+      );
+      const majority = calculateMajority(playerRole.members.array().length);
+
+      const majorityReached = targetVotes >= majority;
+
+      if (majorityReached) {
+        const targetUser = await message.guild!.members.fetch(target);
+        message.channel.send(`${playerRole}\n${targetUser} has been lynched!`);
+      }
+
       const tallyEmbed = await this.embedHelper.makeTallyEmbed(
         message.guild!,
         votes,
         notVoted,
       );
-      message.channel.send(tallyEmbed);
+      const tallyEmbedMessageRequest = message.channel.send(tallyEmbed);
+
+      if (majorityReached) {
+        this.tallyService.cancelTally(message.guild!);
+        await Promise.all([
+          tallyEmbedMessageRequest.then((tallyEmbedMessage) =>
+            tallyEmbedMessage.pin(),
+          ),
+          this.roleService.removeFromPlayerRole(message.guild!, target),
+        ]);
+      }
     } catch (e) {
       message.reply('something went wrong. Try again later.');
     }

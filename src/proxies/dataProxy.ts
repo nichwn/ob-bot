@@ -52,6 +52,11 @@ export class DataProxy {
       });
   }
 
+  async removeFromPlayerRole(guild: Guild, player: string) {
+    const playerRole = await this.createOrGetPlayerRole(guild);
+    (await guild.members.fetch(player)).roles.remove(playerRole);
+  }
+
   isTallyActive(guild: Guild) {
     const guildCache = this.getCacheForGuild(guild);
     return guildCache.tally.active;

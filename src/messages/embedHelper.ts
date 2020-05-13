@@ -5,6 +5,7 @@ import { RoleService } from '../services/roleService';
 import { compareCaseInsensitive } from '../utils/compare';
 import { MessageHandlerWithHelp } from './messageHandler/messageHandler';
 import { startSymbol } from '../utils/environment';
+import { calculateMajority } from '../utils/tally';
 
 @injectable()
 export class EmbedHelper {
@@ -46,7 +47,7 @@ export class EmbedHelper {
     ).then((usernames) => usernames.sort(compareCaseInsensitive));
 
     const playerRole = await this.roleService.createOrGetPlayerRole(guild);
-    const majority = Math.floor(playerRole.members.array().length / 2) + 1;
+    const majority = calculateMajority(playerRole.members.array().length);
 
     const votesUsernames = await votesUsernamesFetch;
     const notVotedUsernames = await notVotedUsernamesFetch;
