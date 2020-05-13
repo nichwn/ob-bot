@@ -8,14 +8,20 @@ import {
   UserIsNotAPlayerError,
   NoActiveTallyError,
 } from '../../exceptions';
+import { EmbedHelper } from '../embedHelper';
 
 @injectable()
 export class UnvoteHandler extends MessageHandlerWithHelp {
   private readonly tallyService: TallyService;
+  private readonly embedHelper: EmbedHelper;
 
-  constructor(@inject(TYPES.TallyService) tallyService: TallyService) {
+  constructor(
+    @inject(TYPES.TallyService) tallyService: TallyService,
+    @inject(TYPES.EmbedHelper) embedHelper: EmbedHelper,
+  ) {
     super('unvote', MessageCategory.Vote, 'Clears a casted vote');
     this.tallyService = tallyService;
+    this.embedHelper = embedHelper;
   }
 
   async handle(message: Message) {
@@ -34,6 +40,20 @@ export class UnvoteHandler extends MessageHandlerWithHelp {
       }
 
       message.reply(response);
+      return;
+    }
+
+    try {
+      const [votes, notVoted] = this.tallyService.votes(message.guild!);
+
+      const tallyEmbed = await this.embedHelper.makeTallyEmbed(
+        message.guild!,
+        votes,
+        notVoted,
+      );
+      message.channel.send(tallyEmbed);
+    } catch (e) {
+      message.reply('something went wrong. Try again later.');
     }
   }
 }

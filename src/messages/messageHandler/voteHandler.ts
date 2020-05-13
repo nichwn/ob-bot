@@ -8,18 +8,24 @@ import {
   UserIsNotAPlayerError,
   VoteTargetIsNotAPlayerError,
 } from '../../exceptions';
+import { EmbedHelper } from '../embedHelper';
 
 @injectable()
 export class VoteHandler extends MessageHandlerWithHelp {
   private readonly tallyService: TallyService;
+  private readonly embedHelper: EmbedHelper;
 
-  constructor(@inject(TYPES.TallyService) tallyService: TallyService) {
+  constructor(
+    @inject(TYPES.TallyService) tallyService: TallyService,
+    @inject(TYPES.EmbedHelper) embedHelper: EmbedHelper,
+  ) {
     super(
       'vote',
       MessageCategory.Vote,
       'Casts a vote for the mentioned player',
     );
     this.tallyService = tallyService;
+    this.embedHelper = embedHelper;
   }
 
   async handle(message: Message) {
@@ -49,6 +55,20 @@ export class VoteHandler extends MessageHandlerWithHelp {
       }
 
       message.reply(response);
+      return;
+    }
+
+    try {
+      const [votes, notVoted] = this.tallyService.votes(message.guild!);
+
+      const tallyEmbed = await this.embedHelper.makeTallyEmbed(
+        message.guild!,
+        votes,
+        notVoted,
+      );
+      message.channel.send(tallyEmbed);
+    } catch (e) {
+      message.reply('something went wrong. Try again later.');
     }
   }
 }

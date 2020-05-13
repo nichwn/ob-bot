@@ -62,7 +62,6 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
       message.channel.send(tallyEmbed);
     } catch (e) {
       message.reply('something went wrong. Try again later.');
-      throw e;
     }
   }
 }
