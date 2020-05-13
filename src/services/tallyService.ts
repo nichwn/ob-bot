@@ -40,12 +40,9 @@ export class TallyService {
     this.dataProxy.cancelTally(guild);
   }
 
-  votes(guild: Guild, user: User) {
+  votes(guild: Guild) {
     if (!this.dataProxy.isTallyActive(guild)) {
       throw new NoActiveTallyError();
-    }
-    if (!this.dataProxy.isActivePlayer(guild, user)) {
-      throw new UserIsNotAPlayerError();
     }
 
     return this.dataProxy.votes(guild);

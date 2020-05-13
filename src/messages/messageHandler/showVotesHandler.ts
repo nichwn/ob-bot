@@ -3,7 +3,7 @@ import { MessageHandlerWithHelp, MessageCategory } from './messageHandler';
 import { Message } from 'discord.js';
 import { TYPES } from '../../types';
 import { TallyService } from '../../services/tallyService';
-import { UserIsNotAPlayerError, NoActiveTallyError } from '../../exceptions';
+import { NoActiveTallyError } from '../../exceptions';
 import { EmbedHelper } from '../embedHelper';
 
 @injectable()
@@ -22,10 +22,7 @@ export class ShowVotesHandler extends MessageHandlerWithHelp {
 
   async handle(message: Message) {
     try {
-      const [votes, notVoted] = this.tallyService.votes(
-        message.guild!,
-        message.author,
-      );
+      const [votes, notVoted] = this.tallyService.votes(message.guild!);
 
       const response = await this.embedHelper.makeTallyEmbed(
         message.guild!,
@@ -38,8 +35,6 @@ export class ShowVotesHandler extends MessageHandlerWithHelp {
       let response = '';
       if (e instanceof NoActiveTallyError) {
         response = 'no tally is currently active.';
-      } else if (e instanceof UserIsNotAPlayerError) {
-        response = 'only players can request a vote tally.';
       } else {
         response = 'something went wrong. Try again later.';
       }
