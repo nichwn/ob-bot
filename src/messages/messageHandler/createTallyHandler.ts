@@ -5,19 +5,23 @@ import { TYPES } from '../../types';
 import { TallyService } from '../../services/tallyService';
 import { RoleService } from '../../services/roleService';
 import { InsufficientPlayersError, ActiveTallyError } from '../../exceptions';
+import { EmbedHelper } from '../embedHelper';
 
 @injectable()
 export class CreateTallyHandler extends MessageHandlerWithHelp {
   private readonly tallyService: TallyService;
   private readonly roleService: RoleService;
+  private readonly embedHelper: EmbedHelper;
 
   constructor(
     @inject(TYPES.TallyService) tallyService: TallyService,
     @inject(TYPES.RoleService) roleService,
+    @inject(TYPES.EmbedHelper) embedHelper: EmbedHelper,
   ) {
     super('createTally', MessageCategory.Tally, 'Admin. Starts a new tally');
     this.tallyService = tallyService;
     this.roleService = roleService;
+    this.embedHelper = embedHelper;
   }
 
   async handle(message: Message) {
@@ -45,6 +49,20 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
     const playerRole = await this.roleService.createOrGetPlayerRole(
       message.guild!,
     );
-    message.channel.send(`${playerRole}\n\nA new vote has commenced.`);
+    message.channel.send(`${playerRole}\nA new vote has commenced.`);
+
+    try {
+      const [votes, notVoted] = this.tallyService.votes(message.guild!);
+
+      const tallyEmbed = await this.embedHelper.makeTallyEmbed(
+        message.guild!,
+        votes,
+        notVoted,
+      );
+      message.channel.send(tallyEmbed);
+    } catch (e) {
+      message.reply('something went wrong. Try again later.');
+      throw e;
+    }
   }
 }

@@ -47,8 +47,6 @@ export class CancelTallyHandler extends MessageHandlerWithHelp {
     const playerRole = await this.roleService.createOrGetPlayerRole(
       message.guild!,
     );
-    message.channel.send(
-      `${playerRole}\n\nThe current vote has been cancelled.`,
-    );
+    message.channel.send(`${playerRole}\nThe current vote has been cancelled.`);
   }
 }
