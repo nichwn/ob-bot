@@ -1,36 +1,18 @@
 import { Guild, User } from 'discord.js';
-import { injectable } from 'inversify';
-import * as NodeCache from 'node-cache';
-import { cloneDeep } from 'lodash';
-
-const cache = new NodeCache();
-
-interface GuildCache {
-  playerRoleId?: string;
-  tally: {
-    active: boolean;
-    players: TallyPlayers;
-  };
-}
-
-interface TallyPlayers {
-  [playerId: string]: string | null;
-}
-
-const defaultState: GuildCache = { tally: { active: false, players: {} } };
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../types';
+import { DataCache, TallyPlayers } from '../cache/cache';
 
 @injectable()
 export class DataProxy {
-  private getCacheForGuild(guild: Guild): GuildCache {
-    return cloneDeep(cache.get(guild.id) ?? defaultState);
-  }
+  private cache: DataCache;
 
-  private setCacheForGuild(guild: Guild, guildCache: GuildCache) {
-    cache.set(guild.id, guildCache);
+  constructor(@inject(TYPES.DataCache) cache: DataCache) {
+    this.cache = cache;
   }
 
   async createOrGetPlayerRole(guild: Guild) {
-    const guildCache = this.getCacheForGuild(guild);
+    const guildCache = this.cache.getCacheForGuild(guild);
     const playerRoleId = guildCache.playerRoleId;
     const cachedRole = playerRoleId && (await guild.roles.fetch(playerRoleId));
 
@@ -47,7 +29,7 @@ export class DataProxy {
       })
       .then((role) => {
         guildCache.playerRoleId = role.id;
-        this.setCacheForGuild(guild, guildCache);
+        this.cache.setCacheForGuild(guild, guildCache);
         return role;
       });
   }
@@ -58,12 +40,12 @@ export class DataProxy {
   }
 
   isTallyActive(guild: Guild) {
-    const guildCache = this.getCacheForGuild(guild);
+    const guildCache = this.cache.getCacheForGuild(guild);
     return guildCache.tally.active;
   }
 
   async createTally(guild: Guild) {
-    const guildCache = this.getCacheForGuild(guild);
+    const guildCache = this.cache.getCacheForGuild(guild);
 
     const playerRole = await this.createOrGetPlayerRole(guild);
     const playersWithRole = playerRole.members.map((member) => member.id);
@@ -76,19 +58,19 @@ export class DataProxy {
       }, {} as TallyPlayers),
     };
 
-    this.setCacheForGuild(guild, guildCache);
+    this.cache.setCacheForGuild(guild, guildCache);
   }
 
   cancelTally(guild: Guild) {
-    const guildCache = this.getCacheForGuild(guild);
+    const guildCache = this.cache.getCacheForGuild(guild);
 
     guildCache.tally.active = false;
 
-    this.setCacheForGuild(guild, guildCache);
+    this.cache.setCacheForGuild(guild, guildCache);
   }
 
   isActivePlayer(guild: Guild, user: User) {
-    const guildCache = this.getCacheForGuild(guild);
+    const guildCache = this.cache.getCacheForGuild(guild);
     return Object.prototype.hasOwnProperty.call(
       guildCache.tally.players,
       user.id,
@@ -96,7 +78,7 @@ export class DataProxy {
   }
 
   hasCastedVote(guild: Guild, user: User) {
-    const guildCache = this.getCacheForGuild(guild);
+    const guildCache = this.cache.getCacheForGuild(guild);
     return (
       this.isActivePlayer(guild, user) &&
       guildCache.tally.players[user.id] !== null
@@ -104,7 +86,7 @@ export class DataProxy {
   }
 
   votes(guild: Guild): [{ [target: string]: string[] }, string[]] {
-    const guildCache = this.getCacheForGuild(guild);
+    const guildCache = this.cache.getCacheForGuild(guild);
 
     const initialVoteState = Object.keys(guildCache.tally.players).reduce(
       (accu, currentValue) => ({
@@ -128,18 +110,18 @@ export class DataProxy {
   }
 
   vote(guild: Guild, voter: User, target: User) {
-    const guildCache = this.getCacheForGuild(guild);
+    const guildCache = this.cache.getCacheForGuild(guild);
 
     guildCache.tally.players[voter.id] = target.id;
 
-    this.setCacheForGuild(guild, guildCache);
+    this.cache.setCacheForGuild(guild, guildCache);
   }
 
   unvote(guild: Guild, user: User) {
-    const guildCache = this.getCacheForGuild(guild);
+    const guildCache = this.cache.getCacheForGuild(guild);
 
     guildCache.tally.players[user.id] = null;
 
-    this.setCacheForGuild(guild, guildCache);
+    this.cache.setCacheForGuild(guild, guildCache);
   }
 }

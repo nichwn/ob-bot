@@ -1,6 +1,6 @@
 export const TYPES = {
   Bot: Symbol('Bot'),
-  Cache: Symbol('Cache'),
+  DataCache: Symbol('DataCache'),
   Client: Symbol('Client'),
   DataProxy: Symbol('DataProxy'),
   EmbedHelper: Symbol('EmbedHelper'),

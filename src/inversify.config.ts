@@ -18,11 +18,14 @@ import { VoteHandler } from './messages/messageHandler/voteHandler';
 import { UnvoteHandler } from './messages/messageHandler/unvoteHandler';
 import { ShowVotesHandler } from './messages/messageHandler/showVotesHandler';
 import { EmbedHelper } from './messages/embedHelper';
+import { DataCache } from './cache/cache';
+import { InMemoryCache } from './cache/InMemoryCache';
 
 const container = new Container();
 
 container.bind<Bot>(TYPES.Bot).to(Bot).inSingletonScope();
 container.bind<Client>(TYPES.Client).toConstantValue(new Client());
+container.bind<DataCache>(TYPES.DataCache).to(InMemoryCache);
 container.bind<DataProxy>(TYPES.DataProxy).to(DataProxy);
 container.bind<EmbedHelper>(TYPES.EmbedHelper).to(EmbedHelper);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(HelpHandler);
