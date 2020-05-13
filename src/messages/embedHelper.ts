@@ -65,7 +65,7 @@ export class EmbedHelper {
 
     embed.addFields({
       name: `No Vote (${notVotedUsernames.length})`,
-      value: notVotedUsernames.join(', '),
+      value: notVotedUsernames.join(', ') || '\u200b',
     });
 
     return embed;
