@@ -39,10 +39,10 @@ export class VoteHandler extends MessageHandlerWithHelp {
     const targets = message.mentions.users.array();
 
     if (targets.length === 0) {
-      message.reply('mention the player you wish to vote for.');
+      await message.reply('mention the player you wish to vote for.');
       return;
     } else if (targets.length > 1) {
-      message.reply('you can only vote for 1 player at a time.');
+      await message.reply('you can only vote for 1 player at a time.');
       return;
     }
 
@@ -60,7 +60,7 @@ export class VoteHandler extends MessageHandlerWithHelp {
         response = 'something went wrong. Try again later.';
       }
 
-      message.reply(response);
+      await message.reply(response);
       return;
     }
 
@@ -83,7 +83,9 @@ export class VoteHandler extends MessageHandlerWithHelp {
 
       if (majorityReached) {
         const targetUser = await message.guild!.members.fetch(target);
-        message.channel.send(`${playerRole}\n${targetUser} has been lynched!`);
+        await message.channel.send(
+          `${playerRole}\n${targetUser} has been lynched!`,
+        );
       }
 
       const tallyEmbed = await this.embedHelper.makeTallyEmbed(
@@ -103,7 +105,7 @@ export class VoteHandler extends MessageHandlerWithHelp {
         ]);
       }
     } catch (e) {
-      message.reply('something went wrong. Try again later.');
+      await message.reply('something went wrong. Try again later.');
     }
   }
 }

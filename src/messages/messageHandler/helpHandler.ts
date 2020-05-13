@@ -24,7 +24,7 @@ export class HelpHandler extends MessageHandler {
     this.embedHelper = embedHelper;
   }
 
-  handle(message: Message) {
+  async handle(message: Message) {
     const handlersByCategory = this.messageHandlers.reduce(
       (accu, currentValue) => {
         const category = currentValue.category;
@@ -56,7 +56,6 @@ export class HelpHandler extends MessageHandler {
 
     const response = this.embedHelper.makeHelpEmbed(handlersSorted);
 
-    message.author.send(response);
-    message.reply('DMed!');
+    await Promise.all([message.author.send(response), message.reply('DMed!')]);
   }
 }

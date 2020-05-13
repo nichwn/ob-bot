@@ -26,7 +26,7 @@ export class CancelTallyHandler extends MessageHandlerWithHelp {
 
   async handle(message: Message) {
     if (!message.member?.hasPermission('ADMINISTRATOR')) {
-      message.reply('you need to be an admin to use this command');
+      await message.reply('you need to be an admin to use this command');
       return;
     }
 
@@ -40,13 +40,15 @@ export class CancelTallyHandler extends MessageHandlerWithHelp {
         response = 'something went wrong. Try again later.';
       }
 
-      message.reply(response);
+      await message.reply(response);
       return;
     }
 
     const playerRole = await this.roleService.createOrGetPlayerRole(
       message.guild!,
     );
-    message.channel.send(`${playerRole}\nThe current vote has been cancelled.`);
+    await message.channel.send(
+      `${playerRole}\nThe current vote has been cancelled.`,
+    );
   }
 }

@@ -26,7 +26,7 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
 
   async handle(message: Message) {
     if (!message.member?.hasPermission('ADMINISTRATOR')) {
-      message.reply('you need to be an admin to use this command');
+      await message.reply('you need to be an admin to use this command');
       return;
     }
 
@@ -42,14 +42,14 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
         response = 'something went wrong. Try again later.';
       }
 
-      message.reply(response);
+      await message.reply(response);
       return;
     }
 
     const playerRole = await this.roleService.createOrGetPlayerRole(
       message.guild!,
     );
-    message.channel.send(`${playerRole}\nA new vote has commenced.`);
+    await message.channel.send(`${playerRole}\nA new vote has commenced.`);
 
     try {
       const [votes, notVoted] = this.tallyService.votes(message.guild!);
@@ -59,9 +59,9 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
         votes,
         notVoted,
       );
-      message.channel.send(tallyEmbed);
+      await message.channel.send(tallyEmbed);
     } catch (e) {
-      message.reply('something went wrong. Try again later.');
+      await message.reply('something went wrong. Try again later.');
     }
   }
 }

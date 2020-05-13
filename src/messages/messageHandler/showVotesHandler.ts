@@ -30,7 +30,7 @@ export class ShowVotesHandler extends MessageHandlerWithHelp {
         notVoted,
       );
 
-      message.channel.send(response);
+      await message.channel.send(response);
     } catch (e) {
       let response = '';
       if (e instanceof NoActiveTallyError) {
@@ -39,7 +39,7 @@ export class ShowVotesHandler extends MessageHandlerWithHelp {
         response = 'something went wrong. Try again later.';
       }
 
-      message.reply(response);
+      await message.reply(response);
     }
   }
 }

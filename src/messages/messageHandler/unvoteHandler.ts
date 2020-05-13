@@ -39,7 +39,7 @@ export class UnvoteHandler extends MessageHandlerWithHelp {
         response = 'something went wrong. Try again later.';
       }
 
-      message.reply(response);
+      await message.reply(response);
       return;
     }
 
@@ -51,9 +51,9 @@ export class UnvoteHandler extends MessageHandlerWithHelp {
         votes,
         notVoted,
       );
-      message.channel.send(tallyEmbed);
+      await message.channel.send(tallyEmbed);
     } catch (e) {
-      message.reply('something went wrong. Try again later.');
+      await message.reply('something went wrong. Try again later.');
     }
   }
 }
