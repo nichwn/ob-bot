@@ -8,6 +8,7 @@ export const TYPES = {
   MessageHandlerWithHelp: Symbol('MessageHandlerWithHelp'),
   MessageResponder: Symbol('MessageResponder'),
   RoleService: Symbol('RoleService'),
+  Storage: Symbol('Storage'),
   TallyService: Symbol('TallyService'),
   Token: Symbol('Token'),
 };

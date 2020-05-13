@@ -10,11 +10,14 @@ const defaultState: GuildCache = { tally: { active: false, players: {} } };
 
 @injectable()
 export class InMemoryCache implements DataCache {
-  public getCacheForGuild(guild: Guild): GuildCache {
-    return cloneDeep(cache.get(guild.id) ?? defaultState);
+  public getCacheForGuild(guild: Guild) {
+    return Promise.resolve<GuildCache>(
+      cloneDeep(cache.get(guild.id) ?? defaultState),
+    );
   }
 
   public setCacheForGuild(guild: Guild, guildCache: GuildCache) {
     cache.set(guild.id, guildCache);
+    return Promise.resolve();
   }
 }

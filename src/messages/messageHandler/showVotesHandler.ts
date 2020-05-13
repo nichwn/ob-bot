@@ -22,7 +22,7 @@ export class ShowVotesHandler extends MessageHandlerWithHelp {
 
   async handle(message: Message) {
     try {
-      const [votes, notVoted] = this.tallyService.votes(message.guild!);
+      const [votes, notVoted] = await this.tallyService.votes(message.guild!);
 
       const response = await this.embedHelper.makeTallyEmbed(
         message.guild!,

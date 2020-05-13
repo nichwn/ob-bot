@@ -13,6 +13,6 @@ export interface TallyPlayers {
 }
 
 export interface DataCache {
-  getCacheForGuild(guild: Guild): GuildCache;
-  setCacheForGuild(guild: Guild, guildCache: GuildCache): void;
+  getCacheForGuild(guild: Guild): Promise<GuildCache>;
+  setCacheForGuild(guild: Guild, guildCache: GuildCache): Promise<void>;
 }

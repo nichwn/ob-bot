@@ -47,7 +47,7 @@ export class VoteHandler extends MessageHandlerWithHelp {
     }
 
     try {
-      this.tallyService.vote(message.guild!, voter, targets[0]);
+      await this.tallyService.vote(message.guild!, voter, targets[0]);
     } catch (e) {
       let response = '';
       if (e instanceof NoActiveTallyError) {
@@ -65,7 +65,7 @@ export class VoteHandler extends MessageHandlerWithHelp {
     }
 
     try {
-      const [votes, notVoted] = this.tallyService.votes(message.guild!);
+      const [votes, notVoted] = await this.tallyService.votes(message.guild!);
 
       const targetWithMostVotes = maxBy(
         Object.entries(votes),

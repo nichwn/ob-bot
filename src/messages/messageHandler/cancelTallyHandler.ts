@@ -31,7 +31,7 @@ export class CancelTallyHandler extends MessageHandlerWithHelp {
     }
 
     try {
-      this.tallyService.cancelTally(message.guild!);
+      await this.tallyService.cancelTally(message.guild!);
     } catch (e) {
       let response = '';
       if (e instanceof NoActiveTallyError) {

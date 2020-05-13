@@ -52,7 +52,7 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
     await message.channel.send(`${playerRole}\nA new vote has commenced.`);
 
     try {
-      const [votes, notVoted] = this.tallyService.votes(message.guild!);
+      const [votes, notVoted] = await this.tallyService.votes(message.guild!);
 
       const tallyEmbed = await this.embedHelper.makeTallyEmbed(
         message.guild!,

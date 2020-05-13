@@ -12,7 +12,7 @@ export class DataProxy {
   }
 
   async createOrGetPlayerRole(guild: Guild) {
-    const guildCache = this.cache.getCacheForGuild(guild);
+    const guildCache = await this.cache.getCacheForGuild(guild);
     const playerRoleId = guildCache.playerRoleId;
     const cachedRole = playerRoleId && (await guild.roles.fetch(playerRoleId));
 
@@ -27,9 +27,9 @@ export class DataProxy {
         },
         reason: 'A game player',
       })
-      .then((role) => {
+      .then(async (role) => {
         guildCache.playerRoleId = role.id;
-        this.cache.setCacheForGuild(guild, guildCache);
+        await this.cache.setCacheForGuild(guild, guildCache);
         return role;
       });
   }
@@ -39,13 +39,13 @@ export class DataProxy {
     (await guild.members.fetch(player)).roles.remove(playerRole);
   }
 
-  isTallyActive(guild: Guild) {
-    const guildCache = this.cache.getCacheForGuild(guild);
+  async isTallyActive(guild: Guild) {
+    const guildCache = await this.cache.getCacheForGuild(guild);
     return guildCache.tally.active;
   }
 
   async createTally(guild: Guild) {
-    const guildCache = this.cache.getCacheForGuild(guild);
+    const guildCache = await this.cache.getCacheForGuild(guild);
 
     const playerRole = await this.createOrGetPlayerRole(guild);
     const playersWithRole = playerRole.members.map((member) => member.id);
@@ -58,35 +58,44 @@ export class DataProxy {
       }, {} as TallyPlayers),
     };
 
-    this.cache.setCacheForGuild(guild, guildCache);
+    await this.cache.setCacheForGuild(guild, guildCache);
   }
 
-  cancelTally(guild: Guild) {
-    const guildCache = this.cache.getCacheForGuild(guild);
+  async cancelTally(guild: Guild) {
+    const guildCache = await this.cache.getCacheForGuild(guild);
 
     guildCache.tally.active = false;
 
-    this.cache.setCacheForGuild(guild, guildCache);
+    await this.cache.setCacheForGuild(guild, guildCache);
   }
 
-  isActivePlayer(guild: Guild, user: User) {
-    const guildCache = this.cache.getCacheForGuild(guild);
+  async isActivePlayer(guild: Guild, user: User) {
+    const guildCache = await this.cache.getCacheForGuild(guild);
     return Object.prototype.hasOwnProperty.call(
       guildCache.tally.players,
       user.id,
     );
   }
 
-  hasCastedVote(guild: Guild, user: User) {
-    const guildCache = this.cache.getCacheForGuild(guild);
+  async hasCastedVote(guild: Guild, user: User) {
+    const guildCache = await this.cache.getCacheForGuild(guild);
     return (
       this.isActivePlayer(guild, user) &&
       guildCache.tally.players[user.id] !== null
     );
   }
 
-  votes(guild: Guild): [{ [target: string]: string[] }, string[]] {
-    const guildCache = this.cache.getCacheForGuild(guild);
+  async votes(
+    guild: Guild,
+  ): Promise<
+    [
+      {
+        [target: string]: string[];
+      },
+      string[],
+    ]
+  > {
+    const guildCache = await this.cache.getCacheForGuild(guild);
 
     const initialVoteState = Object.keys(guildCache.tally.players).reduce(
       (accu, currentValue) => ({
@@ -109,19 +118,19 @@ export class DataProxy {
     );
   }
 
-  vote(guild: Guild, voter: User, target: User) {
-    const guildCache = this.cache.getCacheForGuild(guild);
+  async vote(guild: Guild, voter: User, target: User) {
+    const guildCache = await this.cache.getCacheForGuild(guild);
 
     guildCache.tally.players[voter.id] = target.id;
 
-    this.cache.setCacheForGuild(guild, guildCache);
+    await this.cache.setCacheForGuild(guild, guildCache);
   }
 
-  unvote(guild: Guild, user: User) {
-    const guildCache = this.cache.getCacheForGuild(guild);
+  async unvote(guild: Guild, user: User) {
+    const guildCache = await this.cache.getCacheForGuild(guild);
 
     guildCache.tally.players[user.id] = null;
 
-    this.cache.setCacheForGuild(guild, guildCache);
+    await this.cache.setCacheForGuild(guild, guildCache);
   }
 }

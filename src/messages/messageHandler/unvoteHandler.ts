@@ -26,7 +26,7 @@ export class UnvoteHandler extends MessageHandlerWithHelp {
 
   async handle(message: Message) {
     try {
-      this.tallyService.unvote(message.guild!, message.author);
+      await this.tallyService.unvote(message.guild!, message.author);
     } catch (e) {
       let response = '';
       if (e instanceof NoActiveTallyError) {
@@ -44,7 +44,7 @@ export class UnvoteHandler extends MessageHandlerWithHelp {
     }
 
     try {
-      const [votes, notVoted] = this.tallyService.votes(message.guild!);
+      const [votes, notVoted] = await this.tallyService.votes(message.guild!);
 
       const tallyEmbed = await this.embedHelper.makeTallyEmbed(
         message.guild!,

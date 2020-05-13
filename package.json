@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run lint && npm run compile && node src/index.js",
+    "start": "npm run build && node src/index.js",
+    "start:prod": "npm run clean && npm run build && nohup node src/index.js > log.txt 2>&1 & echo $! > pid.txt",
+    "stop:prod": "kill $(tail pid.txt)",
+    "build": "npm run lint && npm run compile",
     "compile": "tsc -p tsconfig.json",
     "lint": "eslint **/*.ts",
     "clean": "rimraf src/**/*.js src/**/*.js.map"
@@ -12,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/storage": "^4.7.0",
     "@types/lodash": "^4.14.150",
     "@types/node": "^13.13.5",
     "@typescript-eslint/eslint-plugin": "^2.31.0",

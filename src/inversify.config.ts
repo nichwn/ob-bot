@@ -4,7 +4,7 @@ import { Bot } from './bot';
 import { Client } from 'discord.js';
 import { MessageResponder } from './messages/messageResponder';
 import { HelpHandler } from './messages/messageHandler/helpHandler';
-import { discordAuthToken } from './utils/environment';
+import { discordAuthToken, nodeEnvironment } from './utils/environment';
 import {
   MessageHandler,
   MessageHandlerWithHelp,
@@ -20,12 +20,17 @@ import { ShowVotesHandler } from './messages/messageHandler/showVotesHandler';
 import { EmbedHelper } from './messages/embedHelper';
 import { DataCache } from './cache/cache';
 import { InMemoryCache } from './cache/InMemoryCache';
+import { CloudCache } from './cache/cloudCache';
+import { Storage } from '@google-cloud/storage';
 
 const container = new Container();
 
 container.bind<Bot>(TYPES.Bot).to(Bot).inSingletonScope();
 container.bind<Client>(TYPES.Client).toConstantValue(new Client());
-container.bind<DataCache>(TYPES.DataCache).to(InMemoryCache);
+container
+  .bind<DataCache>(TYPES.DataCache)
+  .to(nodeEnvironment === 'production' ? CloudCache : InMemoryCache)
+  .inSingletonScope();
 container.bind<DataProxy>(TYPES.DataProxy).to(DataProxy);
 container.bind<EmbedHelper>(TYPES.EmbedHelper).to(EmbedHelper);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(HelpHandler);
@@ -52,6 +57,7 @@ container
 container.bind<MessageResponder>(TYPES.MessageResponder).to(MessageResponder);
 container.bind<RoleService>(TYPES.RoleService).to(RoleService);
 container.bind<TallyService>(TYPES.TallyService).to(TallyService);
+container.bind<Storage>(TYPES.Storage).toConstantValue(new Storage());
 container.bind<string>(TYPES.Token).toConstantValue(discordAuthToken);
 
 export default container;
