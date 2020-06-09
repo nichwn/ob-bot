@@ -37,7 +37,7 @@ export class CancelTallyHandler extends MessageHandlerWithHelp {
       if (e instanceof NoActiveTallyError) {
         response = 'no tally is currently active';
       } else {
-        response = 'something went wrong. Try again later.';
+        throw e;
       }
 
       await message.reply(response);

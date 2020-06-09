@@ -15,7 +15,7 @@ export abstract class MessageHandler {
     return compareCaseInsensitive(commandProvided, this.commandPattern) === 0;
   }
 
-  abstract handle(message: Message): void;
+  abstract handle(message: Message): Promise<void>;
 }
 
 export enum MessageCategory {

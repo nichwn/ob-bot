@@ -13,9 +13,11 @@ export class MessageResponder {
     this.messageHandlers = messageHandlers;
   }
 
-  handle(message: Message) {
-    this.messageHandlers
-      .filter((handler) => handler.canProcess(message))
-      .map((handler) => handler.handle(message));
+  async handle(message: Message) {
+    await Promise.all(
+      this.messageHandlers
+        .filter((handler) => handler.canProcess(message))
+        .map((handler) => handler.handle(message)),
+    ).catch(() => message.reply('something went wrong. Try again later.'));
   }
 }

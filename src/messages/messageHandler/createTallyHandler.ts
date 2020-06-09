@@ -39,7 +39,7 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
       } else if (e instanceof InsufficientPlayersError) {
         response = 'more players are needed before a tally can be started.';
       } else {
-        response = 'something went wrong. Try again later.';
+        throw e;
       }
 
       await message.reply(response);
@@ -51,17 +51,13 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
     );
     await message.channel.send(`${playerRole}\nA new vote has commenced.`);
 
-    try {
-      const [votes, notVoted] = await this.tallyService.votes(message.guild!);
+    const [votes, notVoted] = await this.tallyService.votes(message.guild!);
 
-      const tallyEmbed = await this.embedHelper.makeTallyEmbed(
-        message.guild!,
-        votes,
-        notVoted,
-      );
-      await message.channel.send(tallyEmbed);
-    } catch (e) {
-      await message.reply('something went wrong. Try again later.');
-    }
+    const tallyEmbed = await this.embedHelper.makeTallyEmbed(
+      message.guild!,
+      votes,
+      notVoted,
+    );
+    await message.channel.send(tallyEmbed);
   }
 }
