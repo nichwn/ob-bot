@@ -64,7 +64,8 @@ export class VoteHandler extends MessageHandlerWithHelp {
       return;
     }
 
-    const [votes, notVoted] = await this.tallyService.votes(message.guild!);
+    const voteStatus = await this.tallyService.votes(message.guild!);
+    const { votes } = voteStatus;
 
     const targetWithMostVotes = maxBy(
       Object.entries(votes),
@@ -89,8 +90,7 @@ export class VoteHandler extends MessageHandlerWithHelp {
 
     const tallyEmbed = await this.embedHelper.makeTallyEmbed(
       message.guild!,
-      votes,
-      notVoted,
+      voteStatus,
     );
     const tallyEmbedMessageRequest = message.channel.send(tallyEmbed);
 

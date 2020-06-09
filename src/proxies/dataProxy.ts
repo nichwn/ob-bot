@@ -3,6 +3,11 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../types';
 import { DataCache, TallyPlayers } from '../cache/cache';
 
+export interface VoteStatus {
+  votes: { [target: string]: string[] };
+  notVoted: string[];
+}
+
 @injectable()
 export class DataProxy {
   private cache: DataCache;
@@ -85,16 +90,7 @@ export class DataProxy {
     );
   }
 
-  async votes(
-    guild: Guild,
-  ): Promise<
-    [
-      {
-        [target: string]: string[];
-      },
-      string[],
-    ]
-  > {
+  async votes(guild: Guild): Promise<VoteStatus> {
     const guildCache = await this.cache.getCacheForGuild(guild);
 
     const initialVoteState = Object.keys(guildCache.tally.players).reduce(
@@ -106,15 +102,15 @@ export class DataProxy {
     );
 
     return Object.entries(guildCache.tally.players).reduce(
-      ([votes, notVoted], [voter, target]) => {
+      ({ votes, notVoted }, [voter, target]) => {
         if (target === null) {
           notVoted.push(voter);
         } else {
           votes[target].push(voter);
         }
-        return [votes, notVoted];
+        return { votes, notVoted };
       },
-      [initialVoteState, [] as string[]],
+      { votes: initialVoteState, notVoted: [] } as VoteStatus,
     );
   }
 

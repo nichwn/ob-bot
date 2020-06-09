@@ -43,12 +43,11 @@ export class UnvoteHandler extends MessageHandlerWithHelp {
       return;
     }
 
-    const [votes, notVoted] = await this.tallyService.votes(message.guild!);
+    const voteStatus = await this.tallyService.votes(message.guild!);
 
     const tallyEmbed = await this.embedHelper.makeTallyEmbed(
       message.guild!,
-      votes,
-      notVoted,
+      voteStatus,
     );
     await message.channel.send(tallyEmbed);
   }

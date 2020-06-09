@@ -6,6 +6,7 @@ import { compareCaseInsensitive } from '../utils/compare';
 import { MessageHandlerWithHelp } from './messageHandler/messageHandler';
 import { startSymbol } from '../utils/environment';
 import { calculateMajority } from '../utils/tally';
+import { VoteStatus } from '../proxies/dataProxy';
 
 @injectable()
 export class EmbedHelper {
@@ -17,11 +18,7 @@ export class EmbedHelper {
     this.roleService = roleService;
   }
 
-  async makeTallyEmbed(
-    guild: Guild,
-    votes: { [target: string]: string[] },
-    notVoted: string[],
-  ) {
+  async makeTallyEmbed(guild: Guild, { votes, notVoted }: VoteStatus) {
     const votesUsernamesFetch = Promise.all(
       Object.entries(votes).map(async ([target, voters]) => {
         const targetUsernameFetch = this.playerIdToUsername(guild, target);
