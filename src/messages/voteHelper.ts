@@ -85,18 +85,9 @@ export class VoteHelper {
       const tallyEmbedMessageRequest = message.channel.send(tallyEmbed);
 
       this.tallyService.cancelTally(message.guild!);
-
-      await Promise.all([
-        tallyEmbedMessageRequest.then((tallyEmbedMessage) =>
-          tallyEmbedMessage.pin(),
-        ),
-        targetWithMostVotesId === 'NO_LYNCH'
-          ? Promise.resolve()
-          : this.roleService.removeFromPlayerRole(
-              message.guild!,
-              targetWithMostVotesId,
-            ),
-      ]);
+      await tallyEmbedMessageRequest.then((tallyEmbedMessage) =>
+        tallyEmbedMessage.pin(),
+      );
     }
   }
 }

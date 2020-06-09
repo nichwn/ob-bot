@@ -14,8 +14,4 @@ export class RoleService {
   createOrGetPlayerRole(guild: Guild) {
     return this.dataProxy.createOrGetPlayerRole(guild);
   }
-
-  removeFromPlayerRole(guild: Guild, player: string) {
-    return this.dataProxy.removeFromPlayerRole(guild, player);
-  }
 }
