@@ -2,36 +2,19 @@ import { injectable, inject } from 'inversify';
 import { MessageHandlerWithHelp, MessageCategory } from './messageHandler';
 import { Message } from 'discord.js';
 import { TYPES } from '../../types';
-import { TallyService } from '../../services/tallyService';
-import {
-  NoActiveTallyError,
-  UserIsNotAPlayerError,
-  VoteTargetIsNotAPlayerError,
-} from '../../exceptions';
-import { EmbedHelper } from '../embedHelper';
-import { maxBy } from 'lodash';
-import { calculateMajority } from '../../utils/tally';
-import { RoleService } from '../../services/roleService';
+import { VoteHelper } from '../voteHelper';
 
 @injectable()
 export class VoteHandler extends MessageHandlerWithHelp {
-  private readonly tallyService: TallyService;
-  private readonly roleService: RoleService;
-  private readonly embedHelper: EmbedHelper;
+  private readonly voteHelper: VoteHelper;
 
-  constructor(
-    @inject(TYPES.TallyService) tallyService: TallyService,
-    @inject(TYPES.RoleService) roleService: RoleService,
-    @inject(TYPES.EmbedHelper) embedHelper: EmbedHelper,
-  ) {
+  constructor(@inject(TYPES.VoteHelper) voteHelper: VoteHelper) {
     super(
       'vote',
       MessageCategory.Vote,
       'Casts a vote for the mentioned player',
     );
-    this.tallyService = tallyService;
-    this.roleService = roleService;
-    this.embedHelper = embedHelper;
+    this.voteHelper = voteHelper;
   }
 
   async handle(message: Message) {
@@ -46,62 +29,6 @@ export class VoteHandler extends MessageHandlerWithHelp {
       return;
     }
 
-    try {
-      await this.tallyService.vote(message.guild!, voter, targets[0]);
-    } catch (e) {
-      let response = '';
-      if (e instanceof NoActiveTallyError) {
-        response = 'no tally is currently active.';
-      } else if (e instanceof UserIsNotAPlayerError) {
-        response = 'only players can vote.';
-      } else if (e instanceof VoteTargetIsNotAPlayerError) {
-        response = 'this user cannot be voted for.';
-      } else {
-        throw e;
-      }
-
-      await message.reply(response);
-      return;
-    }
-
-    const voteStatus = await this.tallyService.votes(message.guild!);
-    const { votes } = voteStatus;
-
-    const targetWithMostVotes = maxBy(
-      Object.entries(votes),
-      ([, targetVotes]) => targetVotes.length,
-    )!;
-    const target = targetWithMostVotes[0];
-    const targetVotes = targetWithMostVotes[1].length;
-
-    const playerRole = await this.roleService.createOrGetPlayerRole(
-      message.guild!,
-    );
-    const majority = calculateMajority(playerRole.members.array().length);
-
-    const majorityReached = targetVotes >= majority;
-
-    if (majorityReached) {
-      const targetUser = await message.guild!.members.fetch(target);
-      await message.channel.send(
-        `${playerRole}\n${targetUser} has been lynched!`,
-      );
-    }
-
-    const tallyEmbed = await this.embedHelper.makeTallyEmbed(
-      message.guild!,
-      voteStatus,
-    );
-    const tallyEmbedMessageRequest = message.channel.send(tallyEmbed);
-
-    if (majorityReached) {
-      this.tallyService.cancelTally(message.guild!);
-      await Promise.all([
-        tallyEmbedMessageRequest.then((tallyEmbedMessage) =>
-          tallyEmbedMessage.pin(),
-        ),
-        this.roleService.removeFromPlayerRole(message.guild!, target),
-      ]);
-    }
+    await this.voteHelper.vote(message, voter, targets[0]);
   }
 }

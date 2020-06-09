@@ -48,14 +48,17 @@ export class TallyService {
     return this.dataProxy.votes(guild);
   }
 
-  async vote(guild: Guild, voter: User, target: User) {
+  async vote(guild: Guild, voter: User, target: User | 'NO_LYNCH') {
     if (!(await this.dataProxy.isTallyActive(guild))) {
       throw new NoActiveTallyError();
     }
     if (!(await this.dataProxy.isActivePlayer(guild, voter))) {
       throw new UserIsNotAPlayerError();
     }
-    if (!(await this.dataProxy.isActivePlayer(guild, target))) {
+    if (
+      target !== 'NO_LYNCH' &&
+      !(await this.dataProxy.isActivePlayer(guild, target))
+    ) {
       throw new VoteTargetIsNotAPlayerError();
     }
 

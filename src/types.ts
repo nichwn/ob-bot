@@ -11,4 +11,5 @@ export const TYPES = {
   Storage: Symbol('Storage'),
   TallyService: Symbol('TallyService'),
   Token: Symbol('Token'),
+  VoteHelper: Symbol('VoteHelper'),
 };

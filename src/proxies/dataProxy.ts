@@ -98,13 +98,17 @@ export class DataProxy {
   async votes(guild: Guild): Promise<VoteStatus> {
     const guildCache = await this.cache.getCacheForGuild(guild);
 
-    const initialVoteState = Object.keys(guildCache.tally.players).reduce(
+    const initialPlayerVoteState = Object.keys(guildCache.tally.players).reduce(
       (accu, currentValue) => ({
         ...accu,
         [currentValue]: [],
       }),
       {} as { [target: string]: Vote[] },
     );
+    const initialVoteState = {
+      ...initialPlayerVoteState,
+      NO_LYNCH: [],
+    };
 
     return Object.entries(guildCache.tally.players).reduce(
       ({ votes, notVoted }, [voter, target]) => {
@@ -119,11 +123,14 @@ export class DataProxy {
     );
   }
 
-  async vote(guild: Guild, voter: User, target: User) {
+  async vote(guild: Guild, voter: User, target: User | 'NO_LYNCH') {
     const guildCache = await this.cache.getCacheForGuild(guild);
-
     const voterData = guildCache.tally.players[voter.id];
-    if (voterData.target !== target.id) {
+
+    if (target === 'NO_LYNCH' && voterData.target !== 'NO_LYNCH') {
+      voterData.target = target;
+      voterData.voteTime = new Date().getTime();
+    } else if (target !== 'NO_LYNCH' && voterData.target !== target.id) {
       voterData.target = target.id;
       voterData.voteTime = new Date().getTime();
     }

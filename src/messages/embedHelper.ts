@@ -75,7 +75,7 @@ export class EmbedHelper {
     );
 
     embed.addFields({
-      name: `No Vote (${notVotedUsernames.length})`,
+      name: `Not Voted (${notVotedUsernames.length})`,
       value: notVotedUsernames.join(', ') || '\u200b',
     });
 
@@ -83,7 +83,9 @@ export class EmbedHelper {
   }
 
   private async playerIdToUsername(guild: Guild, playerId: string) {
-    return (await guild.members.fetch(playerId)).user.username;
+    return playerId === 'NO_LYNCH'
+      ? 'No Lynch'
+      : (await guild.members.fetch(playerId)).user.username;
   }
 
   makeHelpEmbed(handlersByCategory: [number, MessageHandlerWithHelp[]][]) {

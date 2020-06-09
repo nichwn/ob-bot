@@ -22,6 +22,8 @@ import { DataCache } from './cache/cache';
 import { InMemoryCache } from './cache/InMemoryCache';
 import { CloudCache } from './cache/cloudCache';
 import { Storage } from '@google-cloud/storage';
+import { NoLynchHandler } from './messages/messageHandler/noLynchHandler';
+import { VoteHelper } from './messages/voteHelper';
 
 const container = new Container();
 
@@ -36,6 +38,7 @@ container.bind<EmbedHelper>(TYPES.EmbedHelper).to(EmbedHelper);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(HelpHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(CancelTallyHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(CreateTallyHandler);
+container.bind<MessageHandler>(TYPES.MessageHandler).to(NoLynchHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(ShowVotesHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(UnvoteHandler);
 container.bind<MessageHandler>(TYPES.MessageHandler).to(VoteHandler);
@@ -45,6 +48,9 @@ container
 container
   .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
   .to(CreateTallyHandler);
+container
+  .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
+  .to(NoLynchHandler);
 container
   .bind<MessageHandlerWithHelp>(TYPES.MessageHandlerWithHelp)
   .to(ShowVotesHandler);
@@ -59,5 +65,6 @@ container.bind<RoleService>(TYPES.RoleService).to(RoleService);
 container.bind<TallyService>(TYPES.TallyService).to(TallyService);
 container.bind<Storage>(TYPES.Storage).toConstantValue(new Storage());
 container.bind<string>(TYPES.Token).toConstantValue(discordAuthToken);
+container.bind<VoteHelper>(TYPES.VoteHelper).to(VoteHelper);
 
 export default container;
