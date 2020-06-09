@@ -4,8 +4,13 @@ import { TYPES } from '../types';
 import { DataCache, TallyPlayers } from '../cache/cache';
 
 export interface VoteStatus {
-  votes: { [target: string]: string[] };
+  votes: { [target: string]: Vote[] };
   notVoted: string[];
+}
+
+export interface Vote {
+  voter: string;
+  voteTime: number;
 }
 
 @injectable()
@@ -58,7 +63,7 @@ export class DataProxy {
     guildCache.tally = {
       active: true,
       players: playersWithRole.reduce((accu, currentValue) => {
-        accu[currentValue] = null;
+        accu[currentValue] = { target: null, voteTime: null };
         return accu;
       }, {} as TallyPlayers),
     };
@@ -98,15 +103,15 @@ export class DataProxy {
         ...accu,
         [currentValue]: [],
       }),
-      {} as { [target: string]: string[] },
+      {} as { [target: string]: Vote[] },
     );
 
     return Object.entries(guildCache.tally.players).reduce(
       ({ votes, notVoted }, [voter, target]) => {
-        if (target === null) {
+        if (target.target === null || target.voteTime === null) {
           notVoted.push(voter);
         } else {
-          votes[target].push(voter);
+          votes[target.target].push({ voter, voteTime: target.voteTime });
         }
         return { votes, notVoted };
       },
@@ -117,7 +122,11 @@ export class DataProxy {
   async vote(guild: Guild, voter: User, target: User) {
     const guildCache = await this.cache.getCacheForGuild(guild);
 
-    guildCache.tally.players[voter.id] = target.id;
+    const voterData = guildCache.tally.players[voter.id];
+    if (voterData.target !== target.id) {
+      voterData.target = target.id;
+      voterData.voteTime = new Date().getTime();
+    }
 
     await this.cache.setCacheForGuild(guild, guildCache);
   }
@@ -125,7 +134,8 @@ export class DataProxy {
   async unvote(guild: Guild, user: User) {
     const guildCache = await this.cache.getCacheForGuild(guild);
 
-    guildCache.tally.players[user.id] = null;
+    guildCache.tally.players[user.id].target = null;
+    guildCache.tally.players[user.id].voteTime = null;
 
     await this.cache.setCacheForGuild(guild, guildCache);
   }

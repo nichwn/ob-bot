@@ -9,7 +9,10 @@ export interface GuildCache {
 }
 
 export interface TallyPlayers {
-  [playerId: string]: string | null;
+  [playerId: string]: {
+    target: string | null;
+    voteTime: number | null;
+  };
 }
 
 export interface DataCache {

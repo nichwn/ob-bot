@@ -20,11 +20,24 @@ export class EmbedHelper {
 
   async makeTallyEmbed(guild: Guild, { votes, notVoted }: VoteStatus) {
     const votesUsernamesFetch = Promise.all(
-      Object.entries(votes).map(async ([target, voters]) => {
+      Object.entries(votes).map(async ([target, targetVotes]) => {
         const targetUsernameFetch = this.playerIdToUsername(guild, target);
         const voterUsernamesFetch = Promise.all(
-          voters.map((voter) => this.playerIdToUsername(guild, voter)),
-        ).then((usernames) => usernames.sort(compareCaseInsensitive));
+          targetVotes.map(async ({ voter, voteTime }) => {
+            const username = await this.playerIdToUsername(guild, voter);
+            return { username, voteTime };
+          }),
+        )
+          .then((votersWithUsernamesAndTime) =>
+            votersWithUsernamesAndTime.sort(
+              (voterA, voterB) =>
+                voterA.voteTime - voterB.voteTime ||
+                compareCaseInsensitive(voterA.username, voterB.username),
+            ),
+          )
+          .then((sortedVotersWithUsernamesAndTime) =>
+            sortedVotersWithUsernamesAndTime.map((voter) => voter.username),
+          );
 
         return [await targetUsernameFetch, await voterUsernamesFetch] as [
           string,
