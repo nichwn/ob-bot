@@ -60,13 +60,29 @@ export class VoteHelper {
     const playerRole = await this.roleService.createOrGetPlayerRole(
       message.guild!,
     );
-    const majorityType = await this.tallyService.majorityType(message.guild!);
-    const majority = calculateMajority(
-      majorityType,
-      playerRole.members.array().length,
-    );
 
-    const majorityReached = targetWithMostVotesCount >= majority;
+    const majorityType = await this.tallyService.majorityType(message.guild!);
+
+    const playerCount = playerRole.members.array().length;
+    const majorityNumber = calculateMajority('MAJORITY', playerCount);
+
+    let majorityReached;
+    if (majorityType === 'MAJORITY') {
+      majorityReached = targetWithMostVotesCount >= majorityNumber;
+    } else {
+      const supermajorityNumber = calculateMajority(
+        'SUPERMAJORITY',
+        playerCount,
+      );
+      const majorityOnlyRole = await this.roleService.createOrGetMajorityOnlyRole(
+        message.guild!,
+      );
+      majorityReached =
+        targetWithMostVotesCount >= supermajorityNumber ||
+        (targetWithMostVotesId !== 'NO_LYNCH' &&
+          majorityOnlyRole.members.has(targetWithMostVotesId) &&
+          targetWithMostVotesCount >= majorityNumber);
+    }
 
     await message.react('✅');
 

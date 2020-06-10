@@ -2,6 +2,7 @@ import { Guild } from 'discord.js';
 
 export interface GuildCache {
   playerRoleId?: string;
+  majorityOnlyRoleId?: string;
   tally: {
     active: boolean;
     majorityType: 'MAJORITY' | 'SUPERMAJORITY';

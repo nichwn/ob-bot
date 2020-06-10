@@ -14,4 +14,8 @@ export class RoleService {
   createOrGetPlayerRole(guild: Guild) {
     return this.dataProxy.createOrGetPlayerRole(guild);
   }
+
+  createOrGetMajorityOnlyRole(guild: Guild) {
+    return this.dataProxy.createOrGetMajorityOnlyRole(guild);
+  }
 }

@@ -27,18 +27,21 @@ export class Bot {
   public listen(): Promise<string> {
     this.client.on('ready', () => {
       this.client.user?.setActivity(`${startSymbol}help`);
-      this.client.guilds.cache.forEach((guild) =>
-        this.roleService.createOrGetPlayerRole(guild),
-      );
+      this.client.guilds.cache.forEach((guild) => {
+        this.roleService.createOrGetPlayerRole(guild);
+        this.roleService.createOrGetMajorityOnlyRole(guild);
+      });
     });
 
-    this.client.on('guildCreate', (guild) =>
-      this.roleService.createOrGetPlayerRole(guild),
-    );
+    this.client.on('guildCreate', (guild) => {
+      this.roleService.createOrGetPlayerRole(guild);
+      this.roleService.createOrGetMajorityOnlyRole(guild);
+    });
 
-    this.client.on('roleDelete', (role) =>
-      this.roleService.createOrGetPlayerRole(role.guild),
-    );
+    this.client.on('roleDelete', (role) => {
+      this.roleService.createOrGetPlayerRole(role.guild);
+      this.roleService.createOrGetMajorityOnlyRole(role.guild);
+    });
 
     this.client.on('message', (message) => {
       if (message.author.bot || !message.content.startsWith(startSymbol)) {

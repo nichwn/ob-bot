@@ -44,6 +44,30 @@ export class DataProxy {
       });
   }
 
+  async createOrGetMajorityOnlyRole(guild: Guild) {
+    const guildCache = await this.cache.getCacheForGuild(guild);
+    const majorityOnlyRoleId = guildCache.majorityOnlyRoleId;
+    const cachedRole =
+      majorityOnlyRoleId && (await guild.roles.fetch(majorityOnlyRoleId));
+
+    if (cachedRole) {
+      return cachedRole;
+    }
+    return guild.roles
+      .create({
+        data: {
+          name: 'Colour Revealed',
+          mentionable: true,
+        },
+        reason: 'A colour revealed player',
+      })
+      .then(async (role) => {
+        guildCache.majorityOnlyRoleId = role.id;
+        await this.cache.setCacheForGuild(guild, guildCache);
+        return role;
+      });
+  }
+
   async isTallyActive(guild: Guild) {
     const guildCache = await this.cache.getCacheForGuild(guild);
     return guildCache.tally.active;

@@ -69,18 +69,24 @@ export class EmbedHelper {
 
     const playerRole = await this.roleService.createOrGetPlayerRole(guild);
     const majorityType = await this.tallyService.majorityType(guild);
-    const majority = calculateMajority(
-      majorityType,
-      playerRole.members.array().length,
-    );
+    const playersCount = playerRole.members.array().length;
+    const majority = calculateMajority(majorityType, playersCount);
 
-    const votesDisplayNames = await votesDisplayNamesFetch;
-    const notVotedDisplayNames = await notVotedDisplayNamesFetch;
-
+    const description = `${majority} to lynch${
+      majorityType === 'SUPERMAJORITY'
+        ? `. ${calculateMajority(
+            'MAJORITY',
+            playersCount,
+          )} for colour-revealed.`
+        : ''
+    }`;
     const embed = new MessageEmbed()
       .setColor(EmbedHelper.embedColour)
       .setTitle('Vote Tally')
-      .setDescription(`${majority} for majority`);
+      .setDescription(description);
+
+    const votesDisplayNames = await votesDisplayNamesFetch;
+    const notVotedDisplayNames = await notVotedDisplayNamesFetch;
 
     votesDisplayNames.forEach((vote) => {
       embed.addField(
