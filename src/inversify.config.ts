@@ -19,7 +19,7 @@ import { UnvoteHandler } from './messages/messageHandler/unvoteHandler';
 import { ShowVotesHandler } from './messages/messageHandler/showVotesHandler';
 import { EmbedHelper } from './messages/embedHelper';
 import { DataCache } from './cache/cache';
-import { InMemoryCache } from './cache/InMemoryCache';
+import { InMemoryCache } from './cache/inMemoryCache';
 import { CloudCache } from './cache/cloudCache';
 import { Storage } from '@google-cloud/storage';
 import { NoLynchHandler } from './messages/messageHandler/noLynchHandler';
