@@ -6,7 +6,9 @@ import NodeCache = require('node-cache');
 
 const cache = new NodeCache();
 
-const defaultState: GuildCache = { tally: { active: false, players: {} } };
+const defaultState: GuildCache = {
+  tally: { active: false, majorityType: 'MAJORITY', players: {} },
+};
 
 @injectable()
 export class InMemoryCache implements DataCache {

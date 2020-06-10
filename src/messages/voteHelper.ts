@@ -60,7 +60,11 @@ export class VoteHelper {
     const playerRole = await this.roleService.createOrGetPlayerRole(
       message.guild!,
     );
-    const majority = calculateMajority(playerRole.members.array().length);
+    const majorityType = await this.tallyService.majorityType(message.guild!);
+    const majority = calculateMajority(
+      majorityType,
+      playerRole.members.array().length,
+    );
 
     const majorityReached = targetWithMostVotesCount >= majority;
 

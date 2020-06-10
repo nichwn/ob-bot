@@ -7,7 +7,9 @@ import { Storage } from '@google-cloud/storage';
 import { cloneDeep } from 'lodash';
 import Stream from 'stream';
 
-const defaultState: GuildCache = { tally: { active: false, players: {} } };
+const defaultState: GuildCache = {
+  tally: { active: false, majorityType: 'MAJORITY', players: {} },
+};
 
 @injectable()
 export class CloudCache implements DataCache {

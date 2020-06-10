@@ -19,7 +19,7 @@ export class TallyService {
     this.dataProxy = dataProxy;
   }
 
-  async createTally(guild: Guild) {
+  async createTally(guild: Guild, majorityType: 'MAJORITY' | 'SUPERMAJORITY') {
     if (await this.dataProxy.isTallyActive(guild)) {
       throw new ActiveTallyError();
     }
@@ -29,7 +29,7 @@ export class TallyService {
       throw new InsufficientPlayersError();
     }
 
-    await this.dataProxy.createTally(guild);
+    await this.dataProxy.createTally(guild, majorityType);
   }
 
   async cancelTally(guild: Guild) {
@@ -75,5 +75,9 @@ export class TallyService {
     }
 
     return this.dataProxy.unvote(guild, user);
+  }
+
+  async majorityType(guild: Guild) {
+    return this.dataProxy.majorityType(guild);
   }
 }

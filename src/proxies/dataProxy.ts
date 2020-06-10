@@ -49,7 +49,7 @@ export class DataProxy {
     return guildCache.tally.active;
   }
 
-  async createTally(guild: Guild) {
+  async createTally(guild: Guild, majorityType: 'MAJORITY' | 'SUPERMAJORITY') {
     const guildCache = await this.cache.getCacheForGuild(guild);
 
     const playerRole = await this.createOrGetPlayerRole(guild);
@@ -57,6 +57,7 @@ export class DataProxy {
 
     guildCache.tally = {
       active: true,
+      majorityType,
       players: playersWithRole.reduce((accu, currentValue) => {
         accu[currentValue] = { target: null, voteTime: null };
         return accu;
@@ -80,6 +81,11 @@ export class DataProxy {
       guildCache.tally.players,
       user.id,
     );
+  }
+
+  async majorityType(guild: Guild) {
+    const guildCache = await this.cache.getCacheForGuild(guild);
+    return guildCache.tally.majorityType;
   }
 
   async hasCastedVote(guild: Guild, user: User) {

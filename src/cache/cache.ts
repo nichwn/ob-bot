@@ -4,6 +4,7 @@ export interface GuildCache {
   playerRoleId?: string;
   tally: {
     active: boolean;
+    majorityType: 'MAJORITY' | 'SUPERMAJORITY';
     players: TallyPlayers;
   };
 }

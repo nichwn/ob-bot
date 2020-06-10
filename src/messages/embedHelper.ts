@@ -7,15 +7,21 @@ import { MessageHandlerWithHelp } from './messageHandler/messageHandler';
 import { startSymbol } from '../utils/environment';
 import { calculateMajority } from '../utils/tally';
 import { VoteStatus } from '../proxies/dataProxy';
+import { TallyService } from '../services/tallyService';
 
 @injectable()
 export class EmbedHelper {
   private static readonly embedColour = '#DC143C';
 
   private roleService: RoleService;
+  private tallyService: TallyService;
 
-  constructor(@inject(TYPES.RoleService) roleService: RoleService) {
+  constructor(
+    @inject(TYPES.RoleService) roleService: RoleService,
+    @inject(TYPES.TallyService) tallyService: TallyService,
+  ) {
     this.roleService = roleService;
+    this.tallyService = tallyService;
   }
 
   async makeTallyEmbed(guild: Guild, { votes, notVoted }: VoteStatus) {
@@ -62,7 +68,11 @@ export class EmbedHelper {
     ).then((displayNames) => displayNames.sort(compareCaseInsensitive));
 
     const playerRole = await this.roleService.createOrGetPlayerRole(guild);
-    const majority = calculateMajority(playerRole.members.array().length);
+    const majorityType = await this.tallyService.majorityType(guild);
+    const majority = calculateMajority(
+      majorityType,
+      playerRole.members.array().length,
+    );
 
     const votesDisplayNames = await votesDisplayNamesFetch;
     const notVotedDisplayNames = await notVotedDisplayNamesFetch;

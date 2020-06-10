@@ -6,6 +6,7 @@ import { TallyService } from '../../services/tallyService';
 import { RoleService } from '../../services/roleService';
 import { InsufficientPlayersError, ActiveTallyError } from '../../exceptions';
 import { EmbedHelper } from '../embedHelper';
+import { compareCaseInsensitive } from '../../utils/compare';
 
 @injectable()
 export class CreateTallyHandler extends MessageHandlerWithHelp {
@@ -18,7 +19,11 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
     @inject(TYPES.RoleService) roleService,
     @inject(TYPES.EmbedHelper) embedHelper: EmbedHelper,
   ) {
-    super('createTally', MessageCategory.Tally, 'Admin. Starts a new tally');
+    super(
+      'createTally',
+      MessageCategory.Tally,
+      'Admin. Starts a new tally. Specify majority/supermajority required.',
+    );
     this.tallyService = tallyService;
     this.roleService = roleService;
     this.embedHelper = embedHelper;
@@ -30,8 +35,29 @@ export class CreateTallyHandler extends MessageHandlerWithHelp {
       return;
     }
 
+    const commandProvided = message.content.split(' ');
+    if (commandProvided.length < 2) {
+      await message.reply('must specify majority/supermajority');
+      return;
+    }
+
+    let majorityType: 'MAJORITY' | 'SUPERMAJORITY';
+    const majoritySpecified = commandProvided[1];
+    if (compareCaseInsensitive(majoritySpecified, 'MAJORITY') === 0) {
+      majorityType = 'MAJORITY';
+    } else if (
+      compareCaseInsensitive(majoritySpecified, 'SUPERMAJORITY') === 0
+    ) {
+      majorityType = 'SUPERMAJORITY';
+    } else {
+      await message.reply(
+        'must specify majority/supermajority immediately after the command',
+      );
+      return;
+    }
+
     try {
-      await this.tallyService.createTally(message.guild!);
+      await this.tallyService.createTally(message.guild!, majorityType);
     } catch (e) {
       let response = '';
       if (e instanceof ActiveTallyError) {
