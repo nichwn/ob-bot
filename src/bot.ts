@@ -27,20 +27,20 @@ export class Bot {
   public listen(): Promise<string> {
     this.client.on('ready', () => {
       this.client.user?.setActivity(`${startSymbol}help`);
-      this.client.guilds.cache.forEach((guild) => {
-        this.roleService.createOrGetPlayerRole(guild);
-        this.roleService.createOrGetMajorityOnlyRole(guild);
+      this.client.guilds.cache.forEach(async (guild) => {
+        await this.roleService.createOrGetPlayerRole(guild);
+        await this.roleService.createOrGetMajorityOnlyRole(guild);
       });
     });
 
-    this.client.on('guildCreate', (guild) => {
-      this.roleService.createOrGetPlayerRole(guild);
-      this.roleService.createOrGetMajorityOnlyRole(guild);
+    this.client.on('guildCreate', async (guild) => {
+      await this.roleService.createOrGetPlayerRole(guild);
+      await this.roleService.createOrGetMajorityOnlyRole(guild);
     });
 
-    this.client.on('roleDelete', (role) => {
-      this.roleService.createOrGetPlayerRole(role.guild);
-      this.roleService.createOrGetMajorityOnlyRole(role.guild);
+    this.client.on('roleDelete', async (role) => {
+      await this.roleService.createOrGetPlayerRole(role.guild);
+      await this.roleService.createOrGetMajorityOnlyRole(role.guild);
     });
 
     this.client.on('message', (message) => {
