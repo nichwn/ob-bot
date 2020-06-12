@@ -64,6 +64,8 @@ export class VoteHelper {
 
     const majorityReached = targetWithMostVotesCount >= majority;
 
+    await message.reply('vote acknowledged.');
+
     if (majorityReached) {
       if (targetWithMostVotesId !== 'NO_LYNCH') {
         const targetWithMostVotesUser = await message.guild!.members.fetch(
@@ -75,16 +77,15 @@ export class VoteHelper {
       } else {
         await message.channel.send(`${playerRole}\nA No Lynch has occurred!`);
       }
-    }
 
-    const tallyEmbed = await this.embedHelper.makeTallyEmbed(
-      message.guild!,
-      voteStatus,
-    );
-    const tallyEmbedMessageRequest = message.channel.send(tallyEmbed);
+      const tallyEmbed = await this.embedHelper.makeTallyEmbed(
+        message.guild!,
+        voteStatus,
+      );
+      const tallyEmbedMessageRequest = message.channel.send(tallyEmbed);
 
-    if (majorityReached) {
       this.tallyService.cancelTally(message.guild!);
+
       await Promise.all([
         tallyEmbedMessageRequest.then((tallyEmbedMessage) =>
           tallyEmbedMessage.pin(),
