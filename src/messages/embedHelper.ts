@@ -67,17 +67,18 @@ export class EmbedHelper {
       .setTitle('Vote Tally')
       .setDescription(`${majority} for majority`);
 
-    votesUsernames.forEach((vote) =>
+    votesUsernames.forEach((vote) => {
       embed.addField(
         `${vote[0]} (${vote[1].length})`,
         vote[1].join(', ') || '\u200b',
-      ),
-    );
-
-    embed.addFields({
-      name: `Not Voted (${notVotedUsernames.length})`,
-      value: notVotedUsernames.join(', ') || '\u200b',
+        true,
+      );
     });
+
+    embed.addField(
+      `Not Voted (${notVotedUsernames.length})`,
+      notVotedUsernames.join(', ') || '\u200b',
+    );
 
     return embed;
   }
