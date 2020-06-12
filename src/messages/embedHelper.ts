@@ -99,7 +99,7 @@ export class EmbedHelper {
         handlers
           .map(
             (handler) =>
-              `**${startSymbol}${handler.commandPattern}:** ${handler.helpText}`,
+              `**${startSymbol}${handler.commandPattern}**: ${handler.helpText}`,
           )
           .join('\n'),
       ),
