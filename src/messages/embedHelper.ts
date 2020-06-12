@@ -19,55 +19,60 @@ export class EmbedHelper {
   }
 
   async makeTallyEmbed(guild: Guild, { votes, notVoted }: VoteStatus) {
-    const votesUsernamesFetch = Promise.all(
+    const votesDisplayNamesFetch = Promise.all(
       Object.entries(votes).map(async ([target, targetVotes]) => {
-        const targetUsernameFetch = this.playerIdToUsername(guild, target);
-        const voterUsernamesFetch = Promise.all(
+        const targetDisplayNameFetch = this.playerIdToDisplayName(
+          guild,
+          target,
+        );
+        const voterDisplayNamesFetch = Promise.all(
           targetVotes.map(async ({ voter, voteTime }) => {
-            const username = await this.playerIdToUsername(guild, voter);
-            return { username, voteTime };
+            const displayName = await this.playerIdToDisplayName(guild, voter);
+            return { displayName, voteTime };
           }),
         )
-          .then((votersWithUsernamesAndTime) =>
-            votersWithUsernamesAndTime.sort(
+          .then((votersWithDisplayNamesAndTime) =>
+            votersWithDisplayNamesAndTime.sort(
               (voterA, voterB) =>
                 voterA.voteTime - voterB.voteTime ||
-                compareCaseInsensitive(voterA.username, voterB.username),
+                compareCaseInsensitive(voterA.displayName, voterB.displayName),
             ),
           )
-          .then((sortedVotersWithUsernamesAndTime) =>
-            sortedVotersWithUsernamesAndTime.map((voter) => voter.username),
+          .then((sortedVotersWithDisplayNamesAndTime) =>
+            sortedVotersWithDisplayNamesAndTime.map(
+              (voter) => voter.displayName,
+            ),
           );
 
-        return [await targetUsernameFetch, await voterUsernamesFetch] as [
+        return [await targetDisplayNameFetch, await voterDisplayNamesFetch] as [
           string,
           string[],
         ];
       }),
-    ).then((votesUsernames) =>
-      votesUsernames.sort(
+    ).then((votesDisplayNames) =>
+      votesDisplayNames.sort(
         ([targetA, votesA], [targetB, votesB]) =>
           votesB.length - votesA.length ||
           compareCaseInsensitive(targetA, targetB),
       ),
     );
 
-    const notVotedUsernamesFetch = Promise.all(
-      notVoted.map((playerId) => this.playerIdToUsername(guild, playerId)),
-    ).then((usernames) => usernames.sort(compareCaseInsensitive));
+    const notVotedDisplayNamesFetch = Promise.all(
+      notVoted.map((playerId) => this.playerIdToDisplayName(guild, playerId)),
+    ).then((displayNames) => displayNames.sort(compareCaseInsensitive));
 
     const playerRole = await this.roleService.createOrGetPlayerRole(guild);
     const majority = calculateMajority(playerRole.members.array().length);
 
-    const votesUsernames = await votesUsernamesFetch;
-    const notVotedUsernames = await notVotedUsernamesFetch;
+    const votesDisplayNames = await votesDisplayNamesFetch;
+    const notVotedDisplayNames = await notVotedDisplayNamesFetch;
 
     const embed = new MessageEmbed()
       .setColor(EmbedHelper.embedColour)
       .setTitle('Vote Tally')
       .setDescription(`${majority} for majority`);
 
-    votesUsernames.forEach((vote) => {
+    votesDisplayNames.forEach((vote) => {
       embed.addField(
         `${vote[0]} (${vote[1].length})`,
         vote[1].join(', ') || '\u200b',
@@ -76,17 +81,24 @@ export class EmbedHelper {
     });
 
     embed.addField(
-      `Not Voted (${notVotedUsernames.length})`,
-      notVotedUsernames.join(', ') || '\u200b',
+      `Not Voted (${notVotedDisplayNames.length})`,
+      notVotedDisplayNames.join(', ') || '\u200b',
     );
 
     return embed;
   }
 
-  private async playerIdToUsername(guild: Guild, playerId: string) {
-    return playerId === 'NO_LYNCH'
-      ? 'No Lynch'
-      : (await guild.members.fetch(playerId)).user.username;
+  private async playerIdToDisplayName(guild: Guild, playerId: string) {
+    if (playerId === 'NO_LYNCH') {
+      return 'No Lynch';
+    }
+
+    const displayName = guild.member(playerId)?.displayName;
+    if (displayName) {
+      return displayName;
+    }
+
+    return (await guild.members.fetch(playerId)).user.username;
   }
 
   makeHelpEmbed(handlersByCategory: [number, MessageHandlerWithHelp[]][]) {
