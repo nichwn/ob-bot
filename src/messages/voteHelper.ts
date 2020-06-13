@@ -64,7 +64,7 @@ export class VoteHelper {
 
     const majorityReached = targetWithMostVotesCount >= majority;
 
-    await message.reply('vote acknowledged.');
+    await message.react('✅');
 
     if (majorityReached) {
       if (targetWithMostVotesId !== 'NO_LYNCH') {

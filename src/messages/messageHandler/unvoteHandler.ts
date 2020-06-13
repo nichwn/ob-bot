@@ -43,6 +43,6 @@ export class UnvoteHandler extends MessageHandlerWithHelp {
       return;
     }
 
-    await message.reply('unvote acknowledged.');
+    await message.react('✅');
   }
 }
